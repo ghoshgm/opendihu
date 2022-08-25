@@ -82,7 +82,7 @@ for j in range(variables.n_fibers_y):
     for k in range(variables.n_points_whole_fiber):
       x_pos = x
       y_pos = y
-      z_pos = (variables.muscle1_extent[2] + variables.tendon_length) + k / (variables.n_points_whole_fiber - 1) * variables.muscle2_extent[2]
+      z_pos = (variables.muscle1_extent[2] + variables.start_tendon_length) + k / (variables.n_points_whole_fiber - 1) * variables.muscle2_extent[2]
       node_positions.append([x_pos,y_pos,z_pos])
     
     mesh_name = "muscle2_fiber{}".format(fiber_no)
@@ -384,6 +384,110 @@ if False:
 
 
 # set Dirichlet BC at top nodes for linear elasticity problem, fix muscle at top
+
+# parameters for precontraction
+# -----------------------------
+variables.precontraction_elasticity_dirichlet_bc_muscle1 = {}
+variables.precontraction_elasticity_dirichlet_bc_muscle2 = {}
+# muscle mesh
+for j in range(ny):
+  for i in range(nx):
+    variables.precontraction_elasticity_dirichlet_bc_muscle1[0*nx*ny + j*nx + i] = [None,None,0.0,None,None,None]
+# muscle mesh
+for j in range(ny):
+  for i in range(nx):
+    variables.precontraction_elasticity_dirichlet_bc_muscle2[(nz-1)*nx*ny + j*nx + i] = [None,None,0.0,None,None,None]
+
+# fix edge
+for i in range(nx):
+  variables.precontraction_elasticity_dirichlet_bc_muscle1[0*nx*ny + 0*nx + i] = [0.0,0.0,0.0,None,None,None]
+# fix edge
+for i in range(nx):
+  variables.precontraction_elasticity_dirichlet_bc_muscle2[(nz-1)*nx*ny + 0*nx + i] = [0.0,0.0,0.0,None,None,None]
+  
+# fix corner completely
+variables.precontraction_elasticity_dirichlet_bc_muscle1[0*nx*ny + 0] = [0.0,0.0,0.0,None,None,None]
+# fix corner completely
+variables.precontraction_elasticity_dirichlet_bc_muscle2[(nz-1)*nx*ny + 0] = [0.0,0.0,0.0,None,None,None]
+
+# guide lower end of muscle along z axis
+# muscle mesh
+for j in range(ny):
+  for i in range(nx):
+    variables.precontraction_elasticity_dirichlet_bc_muscle1[(nz-1)*nx*ny + j*nx + i] = [0.0,0.0,None,None,None,None]
+# guide lower end of muscle along z axis
+# muscle mesh
+for j in range(ny):
+  for i in range(nx):
+    variables.precontraction_elasticity_dirichlet_bc_muscle2[0*nx*ny + j*nx + i] = [0.0,0.0,None,None,None,None]
+
+# Neumann BC at top nodes, traction upwards
+# muscle 1
+variables.precontraction_elasticity_neumann_bc_muscle1 = [{"element": (mz-1)*mx*my + j*mx + i, "constantVector": variables.precontraction_top_traction, "face": "2+"} for j in range(my) for i in range(mx)]
+
+# Neumann BC at bottom nodes, traction downwards
+# muscle 2
+variables.precontraction_elasticity_neumann_bc_muscle2 = [{"element": 0*mx*my + j*mx + i, "constantVector": variables.precontraction_bottom_traction, "face": "2-"} for j in range(my) for i in range(mx)]
+
+
+# parameters for prestretch
+# -----------------------------
+if hasattr(variables, "prestretch_top_traction"):
+  variables.prestretch_elasticity_dirichlet_bc_muscle1 = {}
+  
+  # muscle mesh
+  for j in range(ny):
+    for i in range(nx):
+      variables.prestretch_elasticity_dirichlet_bc_muscle1[0*nx*ny + j*nx + i] = [None,None,0.0,None,None,None]
+
+  # fix edge, note: the prestretch simulation does not work without this (linear solver finds no solution)
+  for i in range(nx):
+    variables.prestretch_elasticity_dirichlet_bc_muscle1[0*nx*ny + 0*nx + i] = [0.0,0.0,0.0,None,None,None]
+    
+  # fix corner completely
+  variables.prestretch_elasticity_dirichlet_bc_muscle1[0*nx*ny + 0] = [0.0,0.0,0.0,None,None,None]
+
+  # guide lower end of muscle along z axis
+  # muscle mesh
+  for j in range(ny):
+    for i in range(nx):
+      variables.prestretch_elasticity_dirichlet_bc_muscle1[(nz-1)*nx*ny + j*nx + i] = [0.0,0.0,None,None,None,None]
+      
+  # Neumann BC at bottom nodes, traction upwards
+  # muscle 1
+  variables.prestretch_elasticity_neumann_bc_muscle1 = [{"element": (mz-1)*mx*my + j*mx + i, "constantVector": variables.prestretch_top_traction, "face": "2+"} for j in range(my) for i in range(mx)]
+  
+if hasattr(variables, "prestretch_bottom_traction"):
+  variables.prestretch_elasticity_dirichlet_bc_muscle2 = {}
+  # muscle mesh
+  for j in range(ny):
+    for i in range(nx):
+      variables.prestretch_elasticity_dirichlet_bc_muscle2[(nz-1)*nx*ny + j*nx + i] = [None,None,0.0,None,None,None]
+
+  # fix edge, note: the prestretch simulation does not work without this (linear solver finds no solution)
+  for i in range(nx):
+    variables.prestretch_elasticity_dirichlet_bc_muscle2[(nz-1)*nx*ny + 0*nx + i] = [0.0,0.0,0.0,None,None,None]
+
+  # fix corner completely
+  variables.prestretch_elasticity_dirichlet_bc_muscle2[(nz-1)*nx*ny + 0] = [0.0,0.0,0.0,None,None,None]
+
+  # guide lower end of muscle along z axis
+  # muscle mesh
+  for j in range(ny):
+    for i in range(nx):
+      variables.prestretch_elasticity_dirichlet_bc_muscle2[0*nx*ny + j*nx + i] = [0.0,0.0,None,None,None,None]
+
+  # Neumann BC at bottom nodes, traction downwards
+  # muscle 2
+  variables.prestretch_elasticity_neumann_bc_muscle2 = [{"element": 0*mx*my + j*mx + i, "constantVector": variables.prestretch_bottom_traction, "face": "2-"} for j in range(my) for i in range(mx)]
+
+  #variables.elasticity_neumann_bc = []
+  
+def update_dirichlet_boundary_conditions_helper(t):
+  return variables.update_dirichlet_boundary_conditions(t,variables.main_elasticity_dirichlet_bc,[nx,ny,nz])
+
+def update_neumann_boundary_conditions_helper(t):
+  return variables.update_neumann_boundary_conditions(t,[mx,my,mz])
 
 # parameters for the main simulation
 # ---------------------------------------------

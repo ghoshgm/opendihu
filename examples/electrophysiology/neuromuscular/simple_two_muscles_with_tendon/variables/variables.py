@@ -80,7 +80,7 @@ debug_output = False                # verbose output in this python script, for 
 disable_firing_output = True        # Disables the initial list of fiber firings on the console to save some console space
 paraview_output = True             # If the paraview output writer should be enabled
 adios_output = False                # If the MegaMol/ADIOS output writer should be enabled
-python_output = True               # If the Python output writer should be enabled
+python_output = False               # If the Python output writer should be enabled
 exfile_output = False               # If the Exfile output writer should be enabled
 initial_guess_nonzero = True        # if the initial guess of the multidomain solver should be set to the previous values, this is only possible if an iterative solver is used
 theta = 0.5                         # weighting factor of implicit term in Crank-Nicolson scheme, 0.5 gives the classic, 2nd-order Crank-Nicolson scheme, 1.0 gives implicit euler
@@ -139,13 +139,13 @@ def get_specific_states_call_enable_begin(fiber_no, mu_no):
   return activation_start_time
 
 
-muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
-tendon_length = 2 # cm
+muscle1_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
+tendon_length = 1.2 # cm
 muscle2_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
 
-n_elements_muscle1 = [4, 4, 8] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
-n_elements_muscle2 = [4, 4, 8]
-n_points_whole_fiber = 80
+n_elements_muscle1 = [2, 2, 4] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
+n_elements_muscle2 = [2, 2, 4]
+n_points_whole_fiber = 40
 n_fibers_x = 4
 n_fibers_y = 4
 

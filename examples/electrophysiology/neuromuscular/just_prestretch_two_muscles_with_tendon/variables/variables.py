@@ -43,7 +43,7 @@ linear_absolute_tolerance = 1e-10          # absolute tolerance of the residual 
 
 # timing parameters
 # -----------------
-end_time = 20.0                   # [ms] end time of the simulation
+end_time = 1.0                   # [ms] end time of the simulation
 stimulation_frequency = 100*1e-3    # [ms^-1] sampling frequency of stimuli in firing_times_file, in stimulations per ms, number before 1e-3 factor is in Hertz. This is not used here.
 dt_neuron_system            = 1e-3  # [ms]
 dt_muscle_spindles          = 1e-3  # [ms]
@@ -140,8 +140,11 @@ def get_specific_states_call_enable_begin(fiber_no, mu_no):
 
 
 muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
-tendon_length = 2 # cm
-muscle2_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
+stretched_muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
+start_tendon_length = 5 # cm
+relaxed_tendon_length = 2 # cm
+muscle2_extent = [3.0, 3.0, 14] # [cm, cm, cm]
+stretched_muscle2_extent = [3.0, 3.0, 14] # [cm, cm, cm]
 
 n_elements_muscle1 = [4, 4, 8] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
 n_elements_muscle2 = [4, 4, 8]
@@ -214,7 +217,34 @@ states_initial_values = []
 fix_bottom = False
 
 
+# material parameters
+# --------------------
+# quantities in mechanics unit system
 
+# parameters for precontraction
+# -----------------------------
+# load
+precontraction_constant_body_force_muscle1 = (0,0,-1*9.81e-4)   # [cm/ms^2], gravity constant for the body force
+precontraction_top_traction = [0,0,0]        # [N]
+
+precontraction_constant_body_force_muscle2 = (0,0,1*9.81e-4)   # [cm/ms^2], gravity constant for the body force
+precontraction_bottom_traction = [0,0,0]        # [N]
+constant_gamma = 0.1    # 0.3 works, the active stress will be pmax*constant_gamma
+
+# parameters for prestretch
+# -----------------------------
+# load
+prestretch_constant_body_force_muscle1 = (0,0,100*9.81e-4)   # [cm/ms^2], gravity constant for the body force
+prestretch_top_traction = [0,0,1]        # [N]  (-30 also works)
+# load
+prestretch_constant_body_force_muscle2 = (0,0,-100*9.81e-4)   # [cm/ms^2], gravity constant for the body force
+prestretch_bottom_traction = [0,0,-1]        # [N]  (-30 also works)
+
+# parameters for main simulation
+# -------------------------------
+# load
+main_constant_body_force = (0,0,-9.81e-4)   # [cm/ms^2], gravity constant for the body force
+main_bottom_traction = [0,0,-10]        # [N]  (-30 works)
 
 # general parameters
 # -----------------------------
@@ -229,7 +259,9 @@ d  = 9.1733                 # [-] anisotropy parameter
 # for debugging, b = 0 leads to normal Mooney-Rivlin
 
 material_parameters = [c1, c2, b, d]   # material parameters
-
+pmax = 7.3                  # [N/cm^2] maximum isometric active stress
+#Conductivity = 3.828        # [mS/cm] sigma, conductivity 
+#Conductivity = 8.93         # [mS/cm] sigma, conductivity 
 
 #--------------------------------
 
@@ -362,10 +394,13 @@ for i in range(n_interneurons):
 main_constant_body_force = [0, 0, 0]
 
 muscle1_tendon_z = muscle1_extent[2]
-muscle2_tendon_z = muscle1_extent[2] + tendon_length
+muscle2_tendon_z = muscle1_extent[2] + start_tendon_length
+
+muscle1_streched_extend = muscle1_extent[2]
+muscle2_streched_extend = muscle2_extent[2]
 
 def compute_tendon_force(d):
-    tendon_length_relaxed = tendon_length
+    tendon_length_relaxed = relaxed_tendon_length
     # Hooke's law
     return max(0.0, 5*(d - tendon_length_relaxed))
 
@@ -433,16 +468,36 @@ def muscle1_postprocess(data):
     nx = 2*mx + 1
     ny = 2*my + 1
     nz = 2*mz + 1
+
     # compute average z-value of end of muscle
     z_value = 0
     for j in range(ny):
         for i in range(nx):
             z_value += z_data[(nz-1)*nx*ny + j*nx + i]
     z_value /= ny*nx
+    
+    z_value_fix = 0
+    for j in range(ny):
+        for i in range(nx):
+            z_value_fix += z_data[0*nx*ny + j*nx + i]
+    z_value_fix /= ny*nx
 
     global muscle1_tendon_z
     muscle1_tendon_z = z_value
-    print("Muscle2: t: {:6.2f}, avg. change of muscle length: {:+2.2f}".format(t, muscle1_tendon_z - muscle1_extent[2]))
+    
+    global muscle1_streched_extend 
+    if t <= 1:
+        muscle1_streched_extend = z_value
+    else:
+        muscle1_streched_extend = muscle1_streched_extend
+    
+    prestrech = muscle1_streched_extend / muscle1_extent[2]
+    #print("Muscle1: t: {:6.2f}, muscle1 streched extend: {:+2.2f}".format(t, muscle1_streched_extend))
+    print("Muscle1: t: {:6.2f}, avg. change of muscle length: {:+2.2f}".format(t, muscle1_tendon_z - muscle1_streched_extend))
+    print("Muscle1: t: {:6.2f}, Prestretch of muscle1: {:+2.2f}".format(t, prestrech))
+    #print("Muscle1: t: {:6.2f}, muscle1 extend: {:+2.2f}".format(t, muscle1_extent[2]))
+    #print("Muscle1: t: {:6.2f}, muscle1 tendon z: {:+2.2f}".format(t, muscle1_tendon_z))
+    #print("Muscle1: t: {:6.2f}, muscle1 tendon z: {:+2.2f}".format(t, z_value_fix))
 
 
 def muscle2_postprocess(data):
@@ -462,10 +517,29 @@ def muscle2_postprocess(data):
         for i in range(nx):
             z_value += z_data[0*nx*ny + j*nx + i]
     z_value /= ny*nx
+    
+    z_value_fix = 0
+    for j in range(ny):
+        for i in range(nx):
+            z_value_fix += z_data[(nz-1)*nx*ny + j*nx + i]
+    z_value_fix /= ny*nx
 
     global muscle2_tendon_z
     muscle2_tendon_z = z_value
-    print("Muscle2: t: {:6.2f}, avg. change of muscle length: {:+2.2f}".format(t, muscle2_extent[2] - muscle2_tendon_z))
+   
+    global muscle2_streched_extend 
+    if t <= 1:
+        muscle2_streched_extend = z_value_fix - muscle2_tendon_z
+    else:
+        muscle2_streched_extend = muscle2_streched_extend
+        
+    prestrech = muscle2_streched_extend / muscle2_extent[2]
+    #print("Muscle1: t: {:6.2f}, muscle2 streched extend: {:+2.2f}".format(t, muscle2_streched_extend))
+    print("Muscle2: t: {:6.2f}, avg. change of muscle length: {:+2.2f}".format(t, z_value_fix - muscle2_tendon_z - muscle2_streched_extend ))
+    print("Muscle2: t: {:6.2f}, Prestretch of muscle2: {:+2.2f}".format(t, prestrech))
+    #print("Muscle2: t: {:6.2f}, muscle2 extend: {:+2.2f}".format(t, muscle2_extent[2]))
+    #print("Muscle2: t: {:6.2f}, muscle2 tendon z: {:+2.2f}".format(t, muscle2_tendon_z))
+    #print("Muscle2: t: {:6.2f}, muscle2 tendon z: {:+2.2f}".format(t, z_value_fix))
 
 
 
@@ -805,6 +879,28 @@ def callback_motoneurons_input(input_values, output_values, current_time, slot_n
       
     print("motoneurons input from spindles and interneurons: {}, resulting drive: {}".format(input_values, output_values))
 
+# callback function for artifical stress values in precontraction computation
+def set_gamma_values(n_dofs_global, n_nodes_global_per_coordinate_direction, time_step_no, current_time, values, global_natural_dofs, custom_argument):
+    # n_dofs_global:       (int) global number of dofs in the mesh where to set the values
+    # n_nodes_global_per_coordinate_direction (list of ints)   [mx, my, mz] number of global nodes in each coordinate direction. 
+    #                       For composite meshes, the values are only for the first submesh, for other meshes sum(...) equals n_dofs_global
+    # time_step_no:        (int)   current time step number
+    # current_time:        (float) the current simulation time
+    # values:              (list of floats) all current local values of the field variable, if there are multiple components, they are stored in struct-of-array memory layout 
+    #                       i.e. [point0_component0, point0_component1, ... point0_componentN, point1_component0, point1_component1, ...]
+    #                       After the call, these values will be assigned to the field variable.
+    # global_natural_dofs  (list of ints) for every local dof no. the dof no. in global natural ordering
+    # additional_argument: The value of the option "additionalArgument", can be any Python object.
+    
+    # set all values to 1
+    for i in range(len(values)):
+      values[i] = constant_gamma
+
+# callback function for artifical lambda values in precontraction computation
+def set_lambda_values(n_dofs_global, n_nodes_global_per_coordinate_direction, time_step_no, current_time, values, global_natural_dofs, custom_argument):
+    # set all values to 1
+    for i in range(len(values)):
+      values[i] = 1.0
 
 
 

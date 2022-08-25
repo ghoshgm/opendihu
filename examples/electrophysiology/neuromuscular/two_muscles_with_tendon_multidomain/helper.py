@@ -10,6 +10,7 @@ import random
 import time
 sys.path.insert(0, '..')
 import variables    # file variables.py
+from create_partitioned_meshes_for_settings import *   # file create_partitioned_meshes_for_settings
 
 # parse arguments
 rank_no = int(sys.argv[-2])
@@ -20,6 +21,20 @@ variables.n_subdomains = variables.n_subdomains_x*variables.n_subdomains_y*varia
 if variables.n_subdomains != n_ranks:
   print("\n\n\033[0;31mError! Number of ranks {} does not match given partitioning {} x {} x {} = {}.\033[0m\n\n".format(n_ranks, variables.n_subdomains_x, variables.n_subdomains_y, variables.n_subdomains_z, variables.n_subdomains_x*variables.n_subdomains_y*variables.n_subdomains_z))
   quit()
+
+variables.relative_factors_muscle1_file = "compartments_relative_factors.{}.{}_mus_partitioning_{}x{}x{}".\
+  format(variables.meshes,len(variables.motor_units),variables.n_subdomains_x,variables.n_subdomains_y,variables.n_subdomains_z)
+
+include_global_node_positions = False
+if not os.path.exists(variables.relative_factors_muscle1_file) and rank_no == 0:
+  include_global_node_positions = True
+
+variables.relative_factors_muscle2_file = "compartments_relative_factors.{}.{}_mus_partitioning_{}x{}x{}".\
+  format(variables.meshes,len(variables.motor_units),variables.n_subdomains_x,variables.n_subdomains_y,variables.n_subdomains_z)
+
+include_global_node_positions = False
+if not os.path.exists(variables.relative_factors_muscle2_file) and rank_no == 0:
+  include_global_node_positions = True
 
 
 def n_fibers_in_subdomain_x(_):
@@ -50,7 +65,7 @@ for j in range(variables.n_fibers_y):
     x = 0 + i / (variables.n_fibers_x - 1) * variables.muscle1_extent[0]
     y = 0 + j / (variables.n_fibers_y - 1) * variables.muscle1_extent[1]
 
-    # loop over points of a single fiber
+    # loop over points of a sifiber_file)ngle fiber
     node_positions = []
     for k in range(variables.n_points_whole_fiber):
       x_pos = x
@@ -242,11 +257,8 @@ if variables.n_motoneurons < needed_motorneurons:
 
 # ---------------------
 # callback functions
-def get_motor_unit_no(fiber_no):
-  return int(variables.fiber_distribution[fiber_no % len(variables.fiber_distribution)]-1)
-
-def get_diffusion_prefactor(fiber_no, mu_no):
-  return variables.get_conductivity(fiber_no, mu_no) / (variables.get_am(fiber_no, mu_no) * variables.get_cm(fiber_no, mu_no))
+def get_motor_unit_no(compartment_no):
+  return compartment_no
 
 def compartment_gets_stimulated(compartment_no, frequency, current_time):
   """
@@ -267,22 +279,8 @@ def compartment_gets_stimulated(compartment_no, frequency, current_time):
   return variables.firing_times[index % n_firing_times, mu_no] == 1
 
 
-# determine MU sizes and create n_fibers_in_motor_unit array
-variables.n_fibers_in_motor_unit = [0 for _ in range(variables.n_motor_units)]
-variables.fiber_index_in_motor_unit = [[] for _ in range(variables.n_motor_units)]
-
-for fiber_no in range(variables.n_fibers_total):
-  mu_no = get_motor_unit_no(fiber_no)
-  variables.n_fibers_in_motor_unit[mu_no] += 1
-  variables.fiber_index_in_motor_unit[mu_no].append(fiber_no)
-
-def get_fiber_index_in_motor_unit(fiber_index, motor_unit_no):
-  return variables.fiber_index_in_motor_unit[motor_unit_no][fiber_index]
-  
-def get_n_fibers_in_motor_unit(motor_unit_no):
-  return variables.n_fibers_in_motor_unit[motor_unit_no]
-
-
+def set_dummy_stress(n_dofs_global, time_step_no, current_time, values, global_natural_dofs, compartment_no):
+  pass
 
 # for debugging output show when the first 20 fibers will fire
 if rank_no == 0 and not variables.disable_firing_output:
@@ -344,8 +342,6 @@ if rank_no == 0 and not variables.disable_firing_output:
 
   t_end = timeit.default_timer()
   print("duration of assembling this list: {:.3f} s\n".format(t_end-t_start))  
-
-
 
 
 ####################################
@@ -453,6 +449,189 @@ def muscle1_update_neumann_boundary_conditions_helper(t):
   return variables.muscle1_update_neumann_boundary_conditions(t, [mx,my,mz])
 def muscle2_update_neumann_boundary_conditions_helper(t):
   return variables.muscle2_update_neumann_boundary_conditions(t, [mx,my,mz])
+
+####################################
+# compute relative factors fr for compartments
+def compute_compartment_relative_factors(mesh_node_positions, n_mesh_points_xy, n_mesh_points_z, fiber_data, motor_units):
+  """
+  Compute the relative factors, f_r, that are needed in the multidomain formulation as a weighting for compartments.
+  Result is relative_factors[motor_unit_no][node_no] for the 3D mesh.
+  :param mesh_node_positions:  list of (x,y,z) values, global node positions of the 3D mesh
+  :param fiber_data: list of fibers, each fiber is a list of points, i.e. point = fiber_data[xy_index][z_index]
+  :param motor_units: a list of dicts, settings for the motor units, [{"fiber_no": 0, "standard_deviation": 0.5, "maximum": 1}]
+  """
+  
+  # list of fibers, fiber = list of points, point = list with 3 coordinate entries
+  n_compartments = len(motor_units)
+  n_points_fiber = len(fiber_data[0])
+
+  # create relative factors for compartments
+  #if rank_no == 0:
+  #  print("determine relative factors for {} motor units:\n{}".format(n_compartments, motor_units))
+
+  # determine approximate diameter of muscle at every point is z direction
+  diameters = []
+    
+  # loop over points in z direction
+  for z_index_mesh in range(n_mesh_points_z):
+    
+    z_index_fiber = int(z_index_mesh / (float)(n_mesh_points_z) * n_points_fiber)
+    
+    # get point on first and last fiber
+    point0 = np.array(fiber_data[0][z_index_fiber])
+    point4 = np.array(fiber_data[(variables.n_fibers_x-1)//2][z_index_fiber])
+    point1 = np.array(fiber_data[variables.n_fibers_x-1][z_index_fiber])
+    point2 = np.array(fiber_data[-variables.n_fibers_x][z_index_fiber])
+    point5 = np.array(fiber_data[(-variables.n_fibers_x)//2][z_index_fiber])
+    point3 = np.array(fiber_data[-1][z_index_fiber])
+    
+    # their distance is an approximation for the diameter
+    distance01 = np.linalg.norm(point0 - point1)
+    distance02 = np.linalg.norm(point0 - point2)
+    distance03 = np.linalg.norm(point0 - point3)
+    distance04 = np.linalg.norm(point0 - point4)
+    distance05 = np.linalg.norm(point0 - point5)
+    distance12 = np.linalg.norm(point1 - point2)
+    distance13 = np.linalg.norm(point1 - point3)
+    distance14 = np.linalg.norm(point1 - point4)
+    distance15 = np.linalg.norm(point1 - point5)
+    distance23 = np.linalg.norm(point2 - point3)
+    distance24 = np.linalg.norm(point2 - point4)
+    distance25 = np.linalg.norm(point2 - point5)
+    distance34 = np.linalg.norm(point3 - point4)
+    distance35 = np.linalg.norm(point3 - point5)
+    distance45 = np.linalg.norm(point4 - point5)
+    distance = max(distance01,distance02,distance03,distance04,distance05,distance12,distance13,distance14,distance15,distance23,distance24,distance25,distance34,distance35,distance45)
+    diameters.append(distance)
+
+  #print("diameters: {}".format(diameters))
+
+  # create data structure with 0
+  relative_factors = np.zeros((n_compartments, len(mesh_node_positions)))   # each row is one compartment
+
+  # loop over nodes of mesh
+  for node_no,node_position in enumerate(mesh_node_positions):
+    node_position = np.array(node_position)
+    
+    z_index_mesh = int((float)(node_no) / n_mesh_points_xy)
+    z_index_fiber = int(z_index_mesh / (float)(n_mesh_points_z) * n_points_fiber)
+    
+    # loop over motor units
+    for motor_unit_no,motor_unit in enumerate(motor_units):
+      
+      # find point on fiber that is closest to current node
+      fiber_no = motor_unit["fiber_no"]
+      if fiber_no >= len(fiber_data):
+        new_fiber_no = fiber_no % len(fiber_data)
+        if node_no == 0:
+          print("\033[0;31mError with motor unit {} around fiber {}, only {} fibers available, now using fiber {} % {} = {} instead.\033[0m".format(motor_unit_no, fiber_no, len(fiber_data), fiber_no, len(fiber_data), new_fiber_no))
+        fiber_no = new_fiber_no
+      
+      min_distance = None
+      search_range = int(1 / (float)(n_mesh_points_z) * n_points_fiber)
+      search_range = max(10,search_range)
+      z_start = max(0,z_index_fiber - search_range)
+      z_end = min(n_points_fiber, z_index_fiber + search_range)
+      
+      #print("node_position: {}, z_index_fiber: {}, fiber at z index: {}, fiber: {}".format(node_position, z_index_fiber, fiber_data[fiber_no][z_index_fiber], fiber_data[fiber_no][z_start:z_end]))
+      #print("search_range: {}".format(search_range))
+      
+      for k,fiber_point in enumerate(fiber_data[fiber_no][z_start:z_end]):
+        d = np.array(fiber_point) - node_position
+        distance = np.inner(d,d)
+        if min_distance is None or distance < min_distance:
+          min_distance = distance
+          #print("node_position {}, fiber_point {}, d={}, |d|={}".format(node_position, fiber_point, d, np.sqrt(distance)))
+      
+      distance = np.sqrt(min_distance)
+      
+      # compute value as gaussian with given standard_deviation and maximum
+      standard_deviation = motor_unit["standard_deviation"]*diameters[z_index_mesh]
+      gaussian = scipy.stats.norm(loc = 0., scale = standard_deviation)
+      value = gaussian.pdf(distance)*standard_deviation*np.sqrt(2*np.pi)*motor_unit["maximum"]
+      relative_factors[motor_unit_no][node_no] += value
+      
+      #print("motor unit {}, fiber {}, distance {}, value {}".format(motor_unit_no, fiber_no, distance, value))
+
+  return relative_factors
+
+####################################
+# load relative factors for motor units
+
+# determine relative factor fields fr(x) for compartments for muscle 1
+if not os.path.exists(variables.relative_factors_muscle1_file):
+
+  # the file does not yet exist, create it on rank 0
+  if rank_no == 0: 
+    
+    mesh_node_positions_muscle1 = fiber_meshes["muscle1_fiber{}".format(fiber_no)]["nodePositions"]
+    n_points_global_muscle1 = [nx, ny, nz]
+    n_mesh_points_xy_muscle1 = n_points_global_muscle1[0]*n_points_global_muscle1[1]
+    n_mesh_points_z_muscle1 = n_points_global_muscle1[2]
+    
+    #print("Computing the relative MU factors, f_r, for {} motor units and {} mesh nodes, {} fibers. This may take a while ...".format(len(variables.motor_units), len(mesh_node_positions_muscle1), len(variables.fibers)))
+    variables.relative_factors_muscle1 = compute_compartment_relative_factors(mesh_node_positions_muscle1, n_mesh_points_xy_muscle1, n_mesh_points_z_muscle1, variables.fibers, variables.motor_units)
+    if rank_no == 0:
+      print("Save relative factors to file \"{}\".".format(variables.relative_factors_muscle1_file))
+      with open(variables.relative_factors_muscle1_file, "wb") as f:
+        pickle.dump(variables.relative_factors_muscle1, f)
+  else:
+    # wait until file is created on rank 0
+    while not os.path.exists(variables.relative_factors_muscle1_file):
+      time.sleep(1)
+
+if os.path.exists(variables.relative_factors_muscle1_file):
+  with open(variables.relative_factors_muscle1_file, "rb") as f:
+    if rank_no == 0:
+      print("Load relative factors, f_r, from file \"{}\"".format(variables.relative_factors_muscle1_file))
+    variables.relative_factors_muscle1 = pickle.load(f, encoding='latin1')
+else:
+  print("\033[0;31mError: Could not load relative factors file \"{}\"\033[0m".format(variables.relative_factors_muscle1_file))
+  quit()
+
+# debugging output
+if rank_no == 0 and not variables.disable_firing_output:
+  for i,factors_list in enumerate(variables.relative_factors_muscle1.tolist()):
+    print("MU {}, maximum fr: {}".format(i,max(factors_list)))
+
+####################################
+# load relative factors for motor units
+
+# determine relative factor fields fr(x) for compartments for muscle 2
+if not os.path.exists(variables.relative_factors_muscle2_file):
+
+  # the file does not yet exist, create it on rank 0
+  if rank_no == 0: 
+    
+    mesh_node_positions_muscle2 = variables.fiber_meshes["muscle2_fiber{}".format(fiber_no)]["nodePositions"]
+    n_points_global_muscle2 = [nx, ny, nz]
+    n_mesh_points_xy_muscle2 = n_points_global_muscle2[0]*n_points_global_muscle2[1]
+    n_mesh_points_z_muscle2 = n_points_global_muscle2[2]
+    
+    #print("Computing the relative MU factors, f_r, for {} motor units and {} mesh nodes, {} fibers. This may take a while ...".format(len(variables.motor_units), len(mesh_node_positions_muscle2), len(variables.fibers)))
+    variables.relative_factors_muscle2 = compute_compartment_relative_factors(mesh_node_positions_muscle2, n_mesh_points_xy_muscle2, n_mesh_points_z_muscle2, variables.fibers, variables.motor_units)
+    if rank_no == 0:
+      print("Save relative factors to file \"{}\".".format(variables.relative_factors_muscle2_file))
+      with open(variables.relative_factors_muscle2_file, "wb") as f:
+        pickle.dump(variables.relative_factors_muscle2, f)
+  else:
+    # wait until file is created on rank 0
+    while not os.path.exists(variables.relative_factors_muscle2_file):
+      time.sleep(1)
+
+if os.path.exists(variables.relative_factors_muscle2_file):
+  with open(variables.relative_factors_muscle2_file, "rb") as f:
+    if rank_no == 0:
+      print("Load relative factors, f_r, from file \"{}\"".format(variables.relative_factors_muscle2_file))
+    variables.relative_factors_muscle2 = pickle.load(f, encoding='latin1')
+else:
+  print("\033[0;31mError: Could not load relative factors file \"{}\"\033[0m".format(variables.relative_factors_muscle2_file))
+  quit()
+
+# debugging output
+if rank_no == 0 and not variables.disable_firing_output:
+  for i,factors_list in enumerate(variables.relative_factors_muscle2.tolist()):
+    print("MU {}, maximum fr: {}".format(i,max(factors_list)))
 
 #######################################
 # position sensor organs in the 3D mesh

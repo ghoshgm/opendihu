@@ -139,13 +139,13 @@ def get_specific_states_call_enable_begin(fiber_no, mu_no):
   return activation_start_time
 
 
-muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
-tendon_length = 2 # cm
+muscle1_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
+tendon_length = 1.2 # cm
 muscle2_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
 
-n_elements_muscle1 = [4, 4, 8] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
-n_elements_muscle2 = [4, 4, 8]
-n_points_whole_fiber = 80
+n_elements_muscle1 = [2, 2, 4] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
+n_elements_muscle2 = [2, 2, 4]
+n_points_whole_fiber = 40
 n_fibers_x = 4
 n_fibers_y = 4
 

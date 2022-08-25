@@ -14,21 +14,15 @@ damping_factor = 0                  # velocity dependent damping factor
 innervation_zone_width = 0.         # not used [cm], this will later be used to specify a variance of positions of the innervation point at the fibers
 
 # solvers
-# -------
-diffusion_solver_type = "cg"        # solver and preconditioner for the diffusion part of the Monodomain equation
-diffusion_preconditioner_type = "none"      # preconditioner
-diffusion_solver_maxit = 1e4
-diffusion_solver_reltol = 1e-10
+# potential flow
 potential_flow_solver_type = "gmres"        # solver and preconditioner for an initial Laplace flow on the domain, from which fiber directions are determined
-potential_flow_preconditioner_type = "gamg" # preconditioner
-potential_flow_solver_maxit = 1e4
-potential_flow_solver_reltol = 1e-10
-emg_solver_type = "cg"              # solver and preconditioner for the 3D static Bidomain equation that solves the intra-muscular EMG signal
-emg_preconditioner_type = "none"    # preconditioner
-emg_initial_guess_nonzero = False   # If the initial guess for the emg linear system should be set to the previous solution
-emg_solver_maxit = 1e4
-emg_solver_abstol = 1e-5
-emg_solver_reltol = 1e-5
+potential_flow_preconditioner_type = "none" # preconditioner
+
+# multidomain
+multidomain_solver_type = "gmres"          # solver for the multidomain problem
+multidomain_preconditioner_type = "none"   # preconditioner
+multidomain_absolute_tolerance = 1e-15 # absolute residual tolerance for the multidomain solver
+multidomain_relative_tolerance = 1e-15 # absolute residual tolerance for the multidomain solver
 
 # elasticity
 elasticity_solver_type = "preonly"
@@ -37,8 +31,8 @@ snes_max_iterations = 10                  # maximum number of iterations in the 
 snes_rebuild_jacobian_frequency = 2       # how often the jacobian should be recomputed, -1 indicates NEVER rebuild, 1 means rebuild every time the Jacobian is computed within a single nonlinear solve, 2 means every second time the Jacobian is built etc. -2 means rebuild at next chance but then never again 
 snes_relative_tolerance = 1e-5      # relative tolerance of the nonlinear solver
 snes_absolute_tolerance = 1e-5      # absolute tolerance of the nonlinear solver
-linear_relative_tolerance = 1e-5           # relative tolerance of the residual of the linear solver
-linear_absolute_tolerance = 1e-10          # absolute tolerance of the residual of the linear solver
+relative_tolerance = 1e-5           # relative tolerance of the residual of the linear solver
+absolute_tolerance = 1e-10          # absolute tolerance of the residual of the linear solver
 
 
 # timing parameters
@@ -53,13 +47,17 @@ dt_motoneuron               = 1e-3  # [ms]
 dt_0D = 0.5e-3                        # [ms] timestep width of ODEs
 dt_1D = 1e-3                      # [ms] timestep width of diffusion
 dt_bidomain = 1e-2                  # [ms] timestep width of multidomain
+dt_multidomain = 1e-3               # [ms] timestep width of the multidomain solver, i.e. the diffusion
+dt_splitting = dt_multidomain       # [ms] timestep width of strang splitting between 0D and multidomain, this is the same as the dt_multidomain, because we do not want to subcycle for the diffusion part
 dt_splitting_0D1D = 1e-3            # [ms] overall timestep width of strang splitting
 dt_elasticity = 1e0                 # [ms] time step width of elasticity solver
 output_timestep = 1e0               # [ms] timestep for output files
 activation_start_time = 0           # [ms] time when to start checking for stimulation
+output_timestep_multidomain = 2     # [ms] timestep for multidomain solver output
 output_timestep_fibers = 2   # [ms] timestep for multidomain output files
 output_timestep_elasticity = 1    # [ms] timestep for elasticity output files
 output_timestep_emg = 20    # [ms] timestep for emg output files
+output_timestep_0D_states = 2       # [ms] timestep for output of all states within multidomain, produces large files, enabled only if states_output = True
 
 output_timestep_golgi_tendon_organs = 20
 output_timestep_spindles = 1         # [ms] timestep for output of files for all sensor organs and neurons
@@ -87,10 +85,7 @@ theta = 0.5                         # weighting factor of implicit term in Crank
 use_symmetric_preconditioner_matrix = True    # if the diagonal blocks of the system matrix should be used as preconditioner matrix
 use_lumped_mass_matrix = False      # which formulation to use, the formulation with lumped mass matrix (True) is more stable but approximative, the other formulation (False) is exact but needs more iterations
 show_linear_solver_output = True    # if convergence information of the linear solver in every timestep should be printed, this is a lot of output for fast computations
-optimization_type = "vc"            # the optimization_type used in the cellml adapter, "vc" uses explicit vectorization
-approximate_exponential_function = False   # if the exponential function should be approximated by a Taylor series with only 11 FLOPS
-dynamic = True                      # if the dynamic hyperelasticity solver should be used
-
+                   
 # motor unit stimulation times
 firing_times_file = "../../../input/MU_firing_times_real.txt"
 #firing_times_file = "../../../input/MU_firing_times_immediately.txt"
@@ -120,32 +115,36 @@ scenario_name = ""
 
 # functions, here, Am, Cm and Conductivity are constant for all fibers and MU's
 # These functions can be redefined differently in a custom variables script
-def get_am(fiber_no, mu_no):
+def get_am(mu_no):
   return Am
 
-def get_cm(fiber_no, mu_no):
-  return Cm
+def get_cm(mu_no):
+  #return Cm
+  return motor_units[mu_no % len(motor_units)]["cm"]
   
-def get_conductivity(fiber_no, mu_no):
+def get_conductivity(mu_no):
   return Conductivity
 
-def get_specific_states_call_frequency(fiber_no, mu_no):
-  return stimulation_frequency
+def get_specific_states_call_frequency(mu_no):
+  #return stimulation_frequency
+  stimulation_frequency = motor_units[mu_no % len(motor_units)]["stimulation_frequency"]
+  return stimulation_frequency*1e-3
 
-def get_specific_states_frequency_jitter(fiber_no, mu_no):
-  return [0]
+def get_specific_states_frequency_jitter(mu_no):
+  #return [0]
+  return motor_units[mu_no % len(motor_units)]["jitter"]
 
-def get_specific_states_call_enable_begin(fiber_no, mu_no):
-  return activation_start_time
+def get_specific_states_call_enable_begin(mu_no):
+  #return activation_start_time
+  return motor_units[mu_no % len(motor_units)]["activation_start_time"]*1e3
 
-
-muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
-tendon_length = 2 # cm
+muscle1_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
+tendon_length = 1.2 # cm
 muscle2_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
 
-n_elements_muscle1 = [4, 4, 8] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
-n_elements_muscle2 = [4, 4, 8]
-n_points_whole_fiber = 80
+n_elements_muscle1 = [2, 2, 4] # linear elements. each qudaratic element uses the combined nodes of 8 linear elements
+n_elements_muscle2 = [2, 2, 4]
+n_points_whole_fiber = 40
 n_fibers_x = 4
 n_fibers_y = 4
 
@@ -175,7 +174,7 @@ n_points_3D_mesh_global_z = None
 output_writer_fibers = None
 output_writer_emg = None
 output_writer_0D_states = None
-states_output = False
+states_output = True
 parameters_used_as_algebraic = None
 parameters_used_as_constant = None
 parameters_initial_values = None
@@ -211,7 +210,6 @@ nz = None
 constant_body_force = None
 bottom_traction = None
 states_initial_values = []
-fix_bottom = False
 
 
 
@@ -229,6 +227,59 @@ d  = 9.1733                 # [-] anisotropy parameter
 # for debugging, b = 0 leads to normal Mooney-Rivlin
 
 material_parameters = [c1, c2, b, d]   # material parameters
+pmax = 7.3                  # [N/cm^2] maximum isometric active stress
+
+# timing and activation parameters
+# -----------------
+# motor unit parameters similar to paper Klotz2019 "Modelling the electrical activity of skeletal muscle tissue using a multi‐domain approach"
+# however, values from paper fail for mu >= 6, then stimulus gets reflected at the ends of the muscle, therefore fiber radius is set to <= 55
+
+import random
+random.seed(0)  # ensure that random numbers are the same on every rank
+import numpy as np
+
+n_fibers_in_fiber_file = 81
+n_motor_units = 10   # number of motor units
+
+motor_units = []
+for mu_no in range(n_motor_units):
+
+  # capacitance of the membrane
+  if mu_no <= 0.7*n_motor_units:
+    cm = 0.58    # slow twitch (type I)
+  else:
+    cm = 1.0     # fast twitch (type II)
+
+  # fiber radius between 40 and 55 [μm]
+  min_value = 40
+  max_value = 55
+
+  # ansatz value(i) = c1 + c2*exp(i),
+  # value(0) = min = c1 + c2  =>  c1 = min - c2
+  # value(n-1) = max = min - c2 + c2*exp(n-1)  =>  max = min + c2*(exp(n-1) - 1)  =>  c2 = (max - min) / (exp(n-1) - 1)
+  c2 = (max_value - min_value) / (1.02**(n_motor_units-1) - 1)
+  c1 = min_value - c2
+  radius = c1 + c2*1.02**(mu_no)
+
+  # standard_deviation
+  min_value = 0.1
+  max_value = 0.6
+  c2 = (max_value - min_value) / (1.02**(n_motor_units-1) - 1)
+  c1 = min_value - c2
+  standard_deviation = c1 + c2*1.02**mu_no
+  maximum = 2.0/n_motor_units*standard_deviation
+
+  # exponential distribution: low number of fibers per MU, slow twitch (type I), activated first --> high number of fibers per MU, fast twitch (type II), activated last
+  motor_units.append(
+  {
+    "fiber_no":              random.randint(0,n_fibers_in_fiber_file),  # [-] fiber from input files that is the center of the motor unit domain
+    "maximum":               maximum,                # [-] maximum value of f_r, create f_r as gaussian with standard_deviation and maximum around the fiber 
+    "standard_deviation":    standard_deviation,     # [-] standard deviation of f_r
+    "radius":                radius,                 # [μm] parameter for motor unit: radius of the fiber, used to compute Am
+    "cm":                    cm,                     # [uF/cm^2] parameter Cm
+  })
+
+#motor_units = motor_units[0:1]  # for debugging, only 1 motor unit
 
 
 #--------------------------------
@@ -243,6 +294,26 @@ input_directory = os.path.join(os.environ.get('OPENDIHU_HOME', '../../../../../'
 cellml_file = input_directory+"/hodgkin_huxley-razumova.cellml"
 fiber_distribution_file = input_directory+"/MU_fibre_distribution_multidomain_67x67_100.txt"
  
+# potential flow
+potential_flow_solver_type = "gmres"        # solver and preconditioner for an initial Laplace flow on the domain, from which fiber directions are determined
+potential_flow_preconditioner_type = "none" # preconditioner
+
+# multidomain
+multidomain_solver_type = "gmres"          # solver for the multidomain problem
+multidomain_preconditioner_type = "euclid"   # preconditioner
+multidomain_max_iterations = 1e3                         # maximum number of iterations
+
+multidomain_alternative_solver_type = "lu"            # alternative solver, used when normal solver diverges
+multidomain_alternative_preconditioner_type = "none"    # preconditioner of the alternative solver
+multidomain_alternative_solver_max_iterations = 1e4      # maximum number of iterations of the alternative solver
+
+multidomain_absolute_tolerance = 1e-10 # absolute residual tolerance for the multidomain solver
+multidomain_relative_tolerance = 1e-10 # absolute residual tolerance for the multidomain solver
+
+initial_guess_nonzero = "lu" not in multidomain_solver_type   # set initial guess to zero for direct solver
+theta = 1.0                               # weighting factor of implicit term in Crank-Nicolson scheme, 0.5 gives the classic, 2nd-order Crank-Nicolson scheme, 1.0 gives implicit euler
+use_symmetric_preconditioner_matrix = True   # if the diagonal blocks of the system matrix should be used as preconditioner matrix
+use_lumped_mass_matrix = False            # which formulation to use, the formulation with lumped mass matrix (True) is more stable but approximative, the other formulation (False) is exact but needs more iterations
 
 # neurons and sensors
 # -------------------
@@ -288,7 +359,7 @@ golgi_tendon_organ_delay = 300
 # load cortical input values
 cortical_input_file = input_directory+"/cortical_input_realistic.txt"
 cortical_input = np.genfromtxt(cortical_input_file, delimiter=",")
-
+print("parsed cortical input file {}, shape: {}".format(cortical_input_file,cortical_input.shape))
 
 # motor neurons
 n_motoneurons = 101
@@ -805,7 +876,57 @@ def callback_motoneurons_input(input_values, output_values, current_time, slot_n
       
     print("motoneurons input from spindles and interneurons: {}, resulting drive: {}".format(input_values, output_values))
 
+# multidomain callbacks
+# ----------------------
+# functions, here, Am, Cm and Conductivity are constant for all fibers and MU's
+def get_am(mu_no):
+  # get radius in cm, 1 μm = 1e-6 m = 1e-4*1e-2 m = 1e-4 cm
+  r = motor_units[mu_no]["radius"]*1e-4
+  # cylinder surface: A = 2*π*r*l, V = cylinder volume: π*r^2*l, Am = A/V = 2*π*r*l / (π*r^2*l) = 2/r
+  return 2./r
+  #return Am
 
+def get_cm(mu_no):
+  return motor_units[mu_no % len(motor_units)]["cm"]
+  #return Cm
+
+# the following callback functions are not needed as the activation is driven by the motor neurons
+if False:  
+  def get_specific_states_call_frequency(mu_no):
+    stimulation_frequency = motor_units[mu_no % len(motor_units)]["stimulation_frequency"]
+    return stimulation_frequency*1e-3
+
+  def get_specific_states_frequency_jitter(mu_no):
+    #return 0
+    return motor_units[mu_no % len(motor_units)]["jitter"]
+
+  def get_specific_states_call_enable_begin(mu_no):
+    #return 1000  # start directly
+    #return 0  # start directly
+    return motor_units[mu_no % len(motor_units)]["activation_start_time"]*1e3
+
+# callback function for artifical stress values in precontraction computation
+def set_gamma_values(n_dofs_global, n_nodes_global_per_coordinate_direction, time_step_no, current_time, values, global_natural_dofs, custom_argument):
+    # n_dofs_global:       (int) global number of dofs in the mesh where to set the values
+    # n_nodes_global_per_coordinate_direction (list of ints)   [mx, my, mz] number of global nodes in each coordinate direction. 
+    #                       For composite meshes, the values are only for the first submesh, for other meshes sum(...) equals n_dofs_global
+    # time_step_no:        (int)   current time step number
+    # current_time:        (float) the current simulation time
+    # values:              (list of floats) all current local values of the field variable, if there are multiple components, they are stored in struct-of-array memory layout 
+    #                       i.e. [point0_component0, point0_component1, ... point0_componentN, point1_component0, point1_component1, ...]
+    #                       After the call, these values will be assigned to the field variable.
+    # global_natural_dofs  (list of ints) for every local dof no. the dof no. in global natural ordering
+    # additional_argument: The value of the option "additionalArgument", can be any Python object.
+    
+    # set all values to 1
+    for i in range(len(values)):
+      values[i] = constant_gamma
+
+# callback function for artifical lambda values in precontraction computation
+def set_lambda_values(n_dofs_global, n_nodes_global_per_coordinate_direction, time_step_no, current_time, values, global_natural_dofs, custom_argument):
+    # set all values to 1
+    for i in range(len(values)):
+      values[i] = 1.0
 
 
 
