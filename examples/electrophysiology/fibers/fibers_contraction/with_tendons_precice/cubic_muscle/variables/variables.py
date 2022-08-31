@@ -87,6 +87,9 @@ firing_times_file = input_directory + "/MU_firing_times_real.txt"
 cellml_file = input_directory+"/hodgkin_huxley_1952.c"
 #cellml_file = input_directory+"/hodgkin_huxley-razumova.cellml"
 #cellml_file = input_directory + "/shorten.cpp"
+#cellml_file = input_directory + "/shorten_ocallaghan_davidson_soboleva_2007.c"
+#cellml_file = input_directory + "/hodgkin-huxley_shorten_ocallaghan_davidson_soboleva_2007.cellml"
+
 
 
 debug_output = False                # verbose output in this python script, for debugging the domain decomposition
@@ -150,7 +153,7 @@ def get_specific_states_call_enable_begin(fiber_no, mu_no):
 ###############################
 # CASE-SPECIFIC PARAMETERS
 
-muscle_left_extent = [3.0, 3.0, 10.8] # [cm, cm, cm]
+muscle_left_extent = [3.0, 3.0, 14.8] # [cm, cm, cm]
 muscle_left_offset = [0.0, 0.0, 0.0] # [cm, cm, cm]
 n_elements_muscle = [2, 2, 4] # linear elements (should be even). each qudaratic element uses the combined nodes of 8 linear elements
 
