@@ -92,7 +92,8 @@ approximate_exponential_function = False   # if the exponential function should 
 dynamic = True                      # if the dynamic hyperelasticity solver should be used
 
 # motor unit stimulation times
-firing_times_file = "../../../input/MU_firing_times_real.txt"
+firing_times_file = "../../../input/MU_firing_times_never.txt"
+#firing_times_file = "../../../input/MU_firing_times_real.txt"
 #firing_times_file = "../../../input/MU_firing_times_immediately.txt"
 
 # partitioning
@@ -142,7 +143,7 @@ def get_specific_states_call_enable_begin(fiber_no, mu_no):
 muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
 stretched_muscle1_extent = [3.0, 3.0, 14] # [cm, cm, cm]
 start_tendon_length = 5 # cm
-relaxed_tendon_length = 2 # cm
+relaxed_tendon_length = 1 # cm
 muscle2_extent = [3.0, 3.0, 14] # [cm, cm, cm]
 stretched_muscle2_extent = [3.0, 3.0, 14] # [cm, cm, cm]
 

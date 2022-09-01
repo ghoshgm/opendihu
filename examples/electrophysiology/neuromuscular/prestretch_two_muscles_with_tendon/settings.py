@@ -452,9 +452,9 @@ config = {
          "numberTimeSteps":              1,                         # only use 1 timestep per interval
          "timeStepOutputInterval":       100,                       # do not output time steps
          "Pmax":                         variables.pmax,            # maximum PK2 active stress
-         "enableForceLengthRelation":    False,                     # if the factor f_l(λ_f) modeling the force-length relation (as in Heidlauf2013) should be multiplied. Set to false if this relation is already considered in the CellML model.
+         "enableForceLengthRelation":    True,                     # if the factor f_l(λ_f) modeling the force-length relation (as in Heidlauf2013) should be multiplied. Set to false if this relation is already considered in the CellML model.
          "lambdaDotScalingFactor":       1.0,                       # scaling factor for the output of the lambda dot slot, i.e. the contraction velocity. Use this to scale the unit-less quantity to, e.g., micrometers per millisecond for the subcellular model.
-         "slotNames":                    ["m1lda", "m1ldot", "m1g_in", "m1T", "m1ux", "m1uy", "m1uz"],
+         "slotNames":                 ["lambda", "m1ldot", "gamma", "m1T"], #["m1ux", "m1uy", "m1uz"],#   ["m1lda", "m1ldot", "m1g_in", "m1T", "m1ux", "m1uy", "m1uz"],
          "OutputWriter" : [
            {"format": "Paraview", "outputInterval": int(1./variables.dt_elasticity*variables.output_timestep_elasticity), "filename": "out/"+variables.scenario_name+"/1_precontraction_mechanics_3D", "binary": True, "fixedFormat": False, "onlyNodalValues":True, "combineFiles": True, "fileNumbering": "incremental"},
          ],
@@ -620,9 +620,9 @@ config = {
          "numberTimeSteps":              1,                         # only use 1 timestep per interval
          "timeStepOutputInterval":       100,                       # do not output time steps
          "Pmax":                         variables.pmax,            # maximum PK2 active stress
-         "enableForceLengthRelation":    False,                     # if the factor f_l(λ_f) modeling the force-length relation (as in Heidlauf2013) should be multiplied. Set to false if this relation is already considered in the CellML model.
+         "enableForceLengthRelation":    True,                     # if the factor f_l(λ_f) modeling the force-length relation (as in Heidlauf2013) should be multiplied. Set to false if this relation is already considered in the CellML model.
          "lambdaDotScalingFactor":       1.0,                       # scaling factor for the output of the lambda dot slot, i.e. the contraction velocity. Use this to scale the unit-less quantity to, e.g., micrometers per millisecond for the subcellular model.
-         "slotNames":                    ["m2lda", "m2ldot", "m2g_in", "m2T", "m2ux", "m2uy", "m2uz"],
+         "slotNames":                    ["lambda", "m2ldot", "gamma", "m2T"], #["m2lda", "m2ldot", "m2g_in", "m2T", "m2ux", "m2uy", "m2uz"],
          "OutputWriter" : [
            {"format": "Paraview", "outputInterval": int(1./variables.dt_elasticity*variables.output_timestep_elasticity), "filename": "out/"+variables.scenario_name+"/1_precontraction_mechanics_3D", "binary": True, "fixedFormat": False, "onlyNodalValues":True, "combineFiles": True, "fileNumbering": "incremental"},
          ],
