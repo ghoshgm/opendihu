@@ -242,6 +242,8 @@ protected:
   int nFiberPointBufferStatesCloseToEquilibrium_;                           //< number of "inactive" entries in fiberPointBuffersStatesAreCloseToEquilibrium_
   bool setComputeStateInformation_;                                         //< whether the information in fiberPointBuffersStatesAreCloseToEquilibrium_ should be added to the algebraics to transfer in a variable named "computeStateInformation"
 
+  std::vector<int> statesForTransferIndices_;          //< state no.s to transfer to other solvers within slot connector data
+  std::vector<int> algebraicsForTransferIndices_;      //< which algebraics should be transferred to other solvers as part of slot connector data
   double valueForStimulatedPoint_;              //< value to which the first state will be set if stimulated
   double neuromuscularJunctionRelativeSize_;    //< relative size of the range where the neuromuscular junction is located
 
