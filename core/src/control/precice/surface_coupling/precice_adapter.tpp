@@ -125,6 +125,16 @@ run()
 }
 
 template<typename NestedSolver>
+void PreciceAdapter<NestedSolver>::
+reset()
+{
+  this->nestedSolver_.reset();
+
+  this->initialized_ = false;
+  // "uninitialize" everything
+}
+
+template<typename NestedSolver>
 typename PreciceAdapter<NestedSolver>::Data &PreciceAdapter<NestedSolver>::
 data()
 {

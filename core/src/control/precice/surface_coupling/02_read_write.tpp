@@ -36,8 +36,8 @@ preciceReadData()
         this->preciceSolverInterface_->readBlockVectorData(preciceData.preciceDataIdDisplacements, preciceData.preciceMesh->nNodesLocal,
                                                            preciceData.preciceMesh->preciceVertexIds.data(), displacementValues_.data());
 
-        // this->preciceSolverInterface_->readBlockVectorData(preciceData.preciceDataIdVelocities, preciceData.preciceMesh->nNodesLocal,
-        //                                                    preciceData.preciceMesh->preciceVertexIds.data(), velocityValues_.data());
+        this->preciceSolverInterface_->readBlockVectorData(preciceData.preciceDataIdVelocities, preciceData.preciceMesh->nNodesLocal,
+                                                           preciceData.preciceMesh->preciceVertexIds.data(), velocityValues_.data());
 
         setDirichletBoundaryConditions(preciceData);
       }
@@ -111,9 +111,9 @@ setDirichletBoundaryConditions(typename PreciceAdapterInitialize<NestedSolver>::
       }
     }
 
-    LOG(INFO) << "read data from precice complete, displacement values: " << displacementValues_
+    LOG(DEBUG) << "read data from precice complete, displacement values: " << displacementValues_
       << ", velocityValues: " << velocityValues_;
-    LOG(INFO) << "read and set Dirichlet BC: " << newDirichletBCValues;
+    LOG(DEBUG) << "read and set Dirichlet BC: " << newDirichletBCValues;
   }
 
   //! set new dirichlet boundary condition values
@@ -131,7 +131,6 @@ setNeumannBoundaryConditions(typename PreciceAdapterInitialize<NestedSolver>::Pr
   struct ElementWithFaces
   {
     element_no_t elementNoLocal;                                     //< the local no of the element
-
     Mesh::face_t face;                                               //< face on which the Neumann BC is applied
     std::vector<std::pair<dof_no_t, VecD<nComponents>>> dofVectors;  //< <surface-local dof no, value>, nComponents == FunctionSpaceType::dim() for traction boundary condition or nComponents = 1 for flux BC
     std::vector<dof_no_t> surfaceDofs;                               //< dof nos of the volume element that correspond to the face / surface. These are different from the dofs in dofsVector which are numbered for the surface only, surfaceDofs are in the numbering of the volume element.
@@ -304,24 +303,23 @@ preciceWriteData()
 
         this->getDisplacementVelocityValues(this->nestedSolver_, preciceData.preciceMesh->dofNosLocal, displacementValues_, velocityValues_);
 
-        LOG(INFO) << "write displacements data to precice: " << displacementValues_;
-        //LOG(INFO) << "write velocities data to precice: " << velocityValues_;
-
-
+#ifndef NDEBUG
+        LOG(DEBUG) << "write displacements data to precice: " << displacementValues_;
+#endif
         // scale displacement and velocity values
         for (double &value : displacementValues_)
           value *= this->scalingFactor_;
 
-        // for (double &value : velocityValues_)
-        //   value *= this->scalingFactor_;
+        for (double &value : velocityValues_)
+          value *= this->scalingFactor_;
 
         // write displacement values in precice
         this->preciceSolverInterface_->writeBlockVectorData(preciceData.preciceDataIdDisplacements, preciceData.preciceMesh->nNodesLocal,
                                                             preciceData.preciceMesh->preciceVertexIds.data(), displacementValues_.data());
 
         // write velocity values in precice
-        // this->preciceSolverInterface_->writeBlockVectorData(preciceData.preciceDataIdVelocities, preciceData.preciceMesh->nNodesLocal,
-        //                                                     preciceData.preciceMesh->preciceVertexIds.data(), velocityValues_.data());
+        this->preciceSolverInterface_->writeBlockVectorData(preciceData.preciceDataIdVelocities, preciceData.preciceMesh->nNodesLocal,
+                                                            preciceData.preciceMesh->preciceVertexIds.data(), velocityValues_.data());
       }
       // if the data is traction
       else if (!preciceData.tractionName.empty())

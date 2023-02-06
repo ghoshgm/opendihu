@@ -87,7 +87,6 @@ getTractionValues(NestedSolverType &nestedSolver, const std::vector<dof_no_t> &d
 {
   /*std::vector<Vec3> values0;
   nestedSolver.timeStepping2().data().materialTraction()->getValuesWithoutGhosts(values0);
-
   std::stringstream s;
   for (int i = 0; i < values0.size(); i++)
   {
@@ -115,9 +114,6 @@ template<typename T1, typename T2, typename T3>
 Vec PreciceAdapterNestedSolver<Control::Coupling<T1,MuscleContractionSolver<T2,T3>>>::
 currentState(NestedSolverType &nestedSolver)
 {
-  //Vec dynamicHyperelasticSolverState;
-  // std::vector<double> fastMonodomainSolverState;
-  // fastMonodomainSolverState = nestedSolver.timeStepping1().currentState();
   return nestedSolver.timeStepping2().dynamicHyperelasticitySolver()->currentState();
 }
 
@@ -127,14 +123,6 @@ PreciceAdapterNestedSolver<Control::Coupling<T1,MuscleContractionSolver<T2,T3>>>
 deformationGradientField(NestedSolverType &nestedSolver)
 {
   return nestedSolver.timeStepping2().dynamicHyperelasticitySolver()->hyperelasticitySolver().data().deformationGradient();
-}
-
-template<typename T1, typename T2, typename T3>
-void PreciceAdapterNestedSolver<Control::Coupling<T1,MuscleContractionSolver<T2,T3>>>::
-reset(NestedSolverType &nestedSolver)
-{
-  //nestedSolver.timeStepping1().reset();
-  nestedSolver.timeStepping2().reset();
 }
 
 // --------------------------------------------------
@@ -154,8 +142,6 @@ addDirichletBoundaryConditions(NestedSolverType &nestedSolver,
                                std::vector<typename SpatialDiscretization::DirichletBoundaryConditionsBase<FunctionSpace,6>::ElementWithNodes> &dirichletBoundaryConditionElements)
 {
   // add the dirichlet bc values
-  LOG(INFO) << "add dirichlet BC \n";
-
   bool overwriteBcOnSameDof = true;
   nestedSolver.addDirichletBoundaryConditions(dirichletBoundaryConditionElements, overwriteBcOnSameDof);
 }
@@ -166,7 +152,6 @@ void PreciceAdapterNestedSolver<TimeSteppingScheme::DynamicHyperelasticitySolver
 updateDirichletBoundaryConditions(NestedSolverType &nestedSolver,
                                   std::vector<std::pair<global_no_t,std::array<double,6>>> newDirichletBoundaryConditionValues)
 {
-    LOG(INFO) << "update dirichlet BC \n";
   nestedSolver.updateDirichletBoundaryConditions(newDirichletBoundaryConditionValues);
 }
 
@@ -175,7 +160,6 @@ void PreciceAdapterNestedSolver<TimeSteppingScheme::DynamicHyperelasticitySolver
 updateNeumannBoundaryConditions(NestedSolverType &nestedSolver,
                                 std::shared_ptr<SpatialDiscretization::NeumannBoundaryConditions<FunctionSpace,Quadrature::Gauss<3>,3>> neumannBoundaryConditions)
 {
-    LOG(INFO) << "update neumann BC \n";
   nestedSolver.hyperelasticitySolver().updateNeumannBoundaryConditions(neumannBoundaryConditions);
 }
 
@@ -190,7 +174,6 @@ getDisplacementVelocityValues(NestedSolverType &nestedSolver, const std::vector<
   values.clear();
   nestedSolver.data().displacements()->getValues(dofNosLocal, values);
 
-
   // store displacement values in interleaved order (array of struct)
   int nVectors = values.size();
   displacementValues.resize(nVectors * 3);
@@ -202,20 +185,20 @@ getDisplacementVelocityValues(NestedSolverType &nestedSolver, const std::vector<
     displacementValues[3*i + 2] = values[i][2];
   }
 
-  // // get the velocity values
-  // values.clear();
-  // nestedSolver.data().velocities()->getValues(dofNosLocal, values);
+  // get the velocity values
+  values.clear();
+  nestedSolver.data().velocities()->getValues(dofNosLocal, values);
 
-  // // store velocity values in interleaved order (array of struct)
-  // nVectors = values.size();
-  // velocityValues.resize(nVectors * 3);
+  // store velocity values in interleaved order (array of struct)
+  nVectors = values.size();
+  velocityValues.resize(nVectors * 3);
 
-  // for (int i = 0; i < nVectors; i++)
-  // {
-  //   velocityValues[3*i + 0] = values[i][0];
-  //   velocityValues[3*i + 1] = values[i][1];
-  //   velocityValues[3*i + 2] = values[i][2];
-  // }
+  for (int i = 0; i < nVectors; i++)
+  {
+    velocityValues[3*i + 0] = values[i][0];
+    velocityValues[3*i + 1] = values[i][1];
+    velocityValues[3*i + 2] = values[i][2];
+  }
 }
 
 //! get the traction vectors of the given local dof nos
@@ -225,7 +208,6 @@ getTractionValues(NestedSolverType &nestedSolver, const std::vector<dof_no_t> &d
 {
   /*std::vector<Vec3> values0;
   nestedSolver.hyperelasticitySolver().data().materialTraction()->getValuesWithoutGhosts(values0);
-
   std::stringstream s;
   for (int i = 0; i < values0.size(); i++)
   {
@@ -263,142 +245,6 @@ deformationGradientField(NestedSolverType &nestedSolver)
 {
   return nestedSolver.hyperelasticitySolver().data().deformationGradient();
 }
-
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::DynamicHyperelasticitySolver<Material>>::
-reset(NestedSolverType &nestedSolver)
-{
-  //nestedSolver.reset();
-}
-
-// --------------------------------------------------
-// QHyperelasticitySolver
-
-template<typename Material>
-std::shared_ptr<typename TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>::FunctionSpace>
-PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-functionSpace(NestedSolverType &nestedSolver)
-{
-  return nestedSolver.data().functionSpace();
-}
-
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-addDirichletBoundaryConditions(NestedSolverType &nestedSolver,
-                               std::vector<typename SpatialDiscretization::DirichletBoundaryConditionsBase<FunctionSpace,6>::ElementWithNodes> &dirichletBoundaryConditionElements)
-{
-  // add the dirichlet bc values
-  bool overwriteBcOnSameDof = true;
-  nestedSolver.addDirichletBoundaryConditions(dirichletBoundaryConditionElements, overwriteBcOnSameDof);
-}
-
-//! update existing boundary conditions with new values
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-updateDirichletBoundaryConditions(NestedSolverType &nestedSolver,
-                                  std::vector<std::pair<global_no_t,std::array<double,6>>> newDirichletBoundaryConditionValues)
-{
-
-  LOG(INFO) << "update dirichlet BC \n";
-  
-  nestedSolver.updateDirichletBoundaryConditions(newDirichletBoundaryConditionValues);
-}
-
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-updateNeumannBoundaryConditions(NestedSolverType &nestedSolver,
-                                std::shared_ptr<SpatialDiscretization::NeumannBoundaryConditions<FunctionSpace,Quadrature::Gauss<3>,3>> neumannBoundaryConditions)
-{
-  LOG(INFO) << "update neumann BC \n";
-  nestedSolver.hyperelasticitySolver().updateNeumannBoundaryConditions(neumannBoundaryConditions);
-}
-
-//! get the displacement and velocity vectors of the given local dof nos
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-getDisplacementVelocityValues(NestedSolverType &nestedSolver, const std::vector<dof_no_t> &dofNosLocal,
-                              std::vector<double> &displacementValues, std::vector<double> &velocityValues)
-{
-  // get the displacement values
-  static std::vector<Vec3> values;
-  values.clear();
-  nestedSolver.data().displacements()->getValues(dofNosLocal, values);
-
-
-  // store displacement values in interleaved order (array of struct)
-  int nVectors = values.size();
-  displacementValues.resize(nVectors * 3);
-
-  for (int i = 0; i < nVectors; i++)
-  {
-    displacementValues[3*i + 0] = values[i][0];
-    displacementValues[3*i + 1] = values[i][1];
-    displacementValues[3*i + 2] = values[i][2];
-  }
-
-  velocityValues.resize(nVectors * 3);
-
-  for (int i = 0; i < nVectors; i++)
-  {
-    velocityValues[3*i + 0] = 0.0;
-    velocityValues[3*i + 1] = 0.0;
-    velocityValues[3*i + 2] = 0.0;
-  }
-}
-
-//! get the traction vectors of the given local dof nos
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-getTractionValues(NestedSolverType &nestedSolver, const std::vector<dof_no_t> &dofNosLocal, std::vector<double> &tractionValues)
-{
-  /*std::vector<Vec3> values0;
-  nestedSolver.hyperelasticitySolver().data().materialTraction()->getValuesWithoutGhosts(values0);
-
-  std::stringstream s;
-  for (int i = 0; i < values0.size(); i++)
-  {
-    s << " " << values0[i][2];
-  }
-  LOG(INFO) << values0.size() << " local traction values in total (QuasistaticHyperelasticitySolver), "
-    << "\ndofNosLocal: " << dofNosLocal << "\nall values: " << values0 << "\nz values: " << s.str();
-*/
-  static std::vector<Vec3> values;
-  values.clear();
-  nestedSolver.hyperelasticitySolver().data().materialTraction()->getValues(dofNosLocal, values);
-
-  int nVectors = values.size();
-  tractionValues.resize(nVectors * 3);
-
-  for (int i = 0; i < nVectors; i++)
-  {
-    tractionValues[3*i + 0] = values[i][0];
-    tractionValues[3*i + 1] = values[i][1];
-    tractionValues[3*i + 2] = values[i][2];
-  }
-}
-
-template<typename Material>
-Vec PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-currentState(NestedSolverType &nestedSolver)
-{
-  return nestedSolver.currentState();
-}
-
-template<typename Material>
-std::shared_ptr<FieldVariable::FieldVariable<typename PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::FunctionSpace, 9>>
-PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-deformationGradientField(NestedSolverType &nestedSolver)
-{
-  return nestedSolver.hyperelasticitySolver().data().deformationGradient();
-}
-
-template<typename Material>
-void PreciceAdapterNestedSolver<TimeSteppingScheme::QuasistaticHyperelasticitySolver<Material>>::
-reset(NestedSolverType &nestedSolver)
-{
-  nestedSolver.reset();
-}
-
 
 // --------------------------------------------------
 // HyperelasticitySolver
@@ -504,9 +350,9 @@ getDisplacementVelocityValues(NestedSolverType &nestedSolver, const std::vector<
 
   for (int i = 0; i < nVectors; i++)
   {
-    velocityValues[3*i + 0] = 0.0;
-    velocityValues[3*i + 1] = 0.0;
-    velocityValues[3*i + 2] = 0.0;
+    velocityValues[3*i + 0] = 0;
+    velocityValues[3*i + 1] = 0;
+    velocityValues[3*i + 2] = 0;
   }
 }
 
@@ -517,13 +363,12 @@ getTractionValues(NestedSolverType &nestedSolver, const std::vector<dof_no_t> &d
 {
   /*std::vector<Vec3> values0;
   nestedSolver.data().materialTraction()->getValuesWithoutGhosts(values0);
-
   std::stringstream s;
   for (int i = 0; i < values0.size(); i++)
   {
     s << " " << values0[i][2];
   }
-  LOG(INFO) << values0.size() << " local traction values in total (), "
+  LOG(INFO) << values0.size() << " local traction values in total (DynamicHyperelasticitySolver), "
     << "\ndofNosLocal: " << dofNosLocal << "\nall values: " << values0 << "\nz values: " << s.str();
 */
   static std::vector<Vec3> values;
@@ -554,13 +399,6 @@ PreciceAdapterNestedSolver<SpatialDiscretization::HyperelasticitySolver<Material
 deformationGradientField(NestedSolverType &nestedSolver)
 {
   return nestedSolver.data().deformationGradient();
-}
-
-template<typename Material>
-void PreciceAdapterNestedSolver<SpatialDiscretization::HyperelasticitySolver<Material>>::
-reset(NestedSolverType &nestedSolver)
-{
-  nestedSolver.reset();
 }
 
 }  // namespace
