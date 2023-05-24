@@ -4,6 +4,11 @@ add_executable(test_mpi test_mpi.cpp)
 target_link_libraries(test_mpi ${MPI_CXX_LIBRARIES})
 add_test(NAME test_mpi COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 test_mpi)
 
+# Test for zlib installation.
+add_executable(test_zlib test_zlib.cpp)
+target_link_libraries(test_zlib ${ZLIB_LIBRARIES})
+add_test(NAME test_zlib COMMAND test_zlib)
+
 # Test for Python3 installation.
 add_executable(test_python test_python.cpp)
 target_link_libraries(test_python ${Python3_LIBRARIES})
@@ -23,3 +28,13 @@ add_test(NAME test_boost COMMAND test_boost)
 add_executable(test_boost_unit_test_framework test_boost_unit_test_framework.cpp)
 target_link_libraries(test_boost_unit_test_framework ${Boost_LIBRARIES})
 add_test(NAME test_boost_unit_test_framework COMMAND test_boost_unit_test_framework)
+
+# Test for Boost installation.
+add_executable(test_xml2 test_xml2.cpp)
+target_link_libraries(test_xml2 ${LIBXML2_LIBRARIES})
+add_test(NAME test_xml2 COMMAND test_xml2)
+
+# Test for easyloggingpp installation.
+add_executable(test_easyloggingpp test_easyloggingpp.cpp)
+target_link_libraries(test_easyloggingpp ${EASYLOGGINGPP_LIBRARIES})
+add_test(NAME test_easyloggingpp COMMAND test_easyloggingpp)
