@@ -38,3 +38,8 @@ add_test(NAME test_xml2 COMMAND test_xml2)
 add_executable(test_easyloggingpp test_easyloggingpp.cpp)
 target_link_libraries(test_easyloggingpp ${EASYLOGGINGPP_LIBRARIES})
 add_test(NAME test_easyloggingpp COMMAND test_easyloggingpp)
+
+# Test for base64 installtion.
+add_executable(test_base64 test_base64.cpp)
+target_link_libraries(test_base64 ${BASE64_LIBRARIES})
+add_test(NAME test_base64 COMMAND test_base64)

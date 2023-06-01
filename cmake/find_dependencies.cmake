@@ -23,6 +23,10 @@ find_package(LibXml2 REQUIRED)
 # Check for easylogging++
 include(cmake/FindEASYLOGGINGPP.cmake)
 
+# Check for base64
+# NOTE: This is not the same as GNU base64. Find the source code at https://github.com/tkislan/base64.
+include(cmake/FindBASE64.cmake)
+
 include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${Python3_INCLUDE_DIRS}
                     ${LIBXML2_INCLUDE_DIR}
