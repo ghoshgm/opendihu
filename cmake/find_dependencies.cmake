@@ -27,8 +27,12 @@ include(cmake/FindEASYLOGGINGPP.cmake)
 # NOTE: This is not the same as GNU base64. Find the source code at https://github.com/tkislan/base64.
 include(cmake/FindBASE64.cmake)
 
+# Check for Vc
+find_package(Vc REQUIRED)
+
 include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${Python3_INCLUDE_DIRS}
                     ${LIBXML2_INCLUDE_DIR}
                     ${ZLIB_INCLUDE_DIRS}
+                    ${Vc_INCLUDE_DIR}
                    )

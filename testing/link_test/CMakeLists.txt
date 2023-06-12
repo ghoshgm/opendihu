@@ -43,3 +43,8 @@ add_test(NAME test_easyloggingpp COMMAND test_easyloggingpp)
 add_executable(test_base64 test_base64.cpp)
 target_link_libraries(test_base64 ${BASE64_LIBRARIES})
 add_test(NAME test_base64 COMMAND test_base64)
+
+# Test for Vc installation.
+add_executable(test_vc test_vc.cpp)
+target_link_libraries(test_vc ${Vc_LIBRARIES})
+add_test(NAME test_vc COMMAND test_vc)
