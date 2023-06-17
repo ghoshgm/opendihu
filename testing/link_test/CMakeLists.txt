@@ -58,3 +58,8 @@ add_test(NAME test_petsc COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2
 add_executable(test_adios2 test_adios2.cpp)
 target_link_libraries(test_adios2 ${adios2_LIBRARIES} ${MPI_CXX_LIBRARIES})
 add_test(NAME test_adios2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_adios2)
+
+# Test for xbraid installation.
+add_executable(test_xbraid test_xbraid.cpp)
+target_link_libraries(test_xbraid ${XBRAID_LIBRARIES} ${MPI_CXX_LIBRARIES})
+add_test(NAME test_xbraid COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_xbraid)

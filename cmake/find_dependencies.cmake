@@ -55,8 +55,14 @@ endif()
 # Search for xbraid installation.
 # The library does not generate *.pc or *-config.cmake files.
 # The includes and libs are pointed directly.
-set(XBRAID_LIBRARIES "${xbraid_DIR}/lib")
-set(XBRAID_INCLUDE_DIR "${xbraid_DIR}/include")
+find_path(XBRAID_INCLUDE_DIR NAMES braid.h HINTS ${xbraid_DIR}/include)
+find_path(XBRAID_LIBRARIES NAMES libbraid.a HINTS ${xbraid_DIR}/lib)
+if(EXISTS ${XBRAID_INCLUDE_DIR} AND EXISTS ${XBRAID_INCLUDE_DIR})
+  set(XBRAID_LIBRARIES "${xbraid_DIR}/lib/libbraid.a")
+  message(STATUS "Found XBraid: ${xbraid_DIR}")
+else()
+  message(STATUS "NOT FOUND")
+endif()
 
 # Search for Base64 installation.
 # The library has no support for CMake or Autotools and it does not generate any static/shared libs.
@@ -75,7 +81,7 @@ endif()
 # Search for SEMT installation.
 # The library has no support for CMake or Autotools and it does not generate any static/shared libs.
 # A shared library is generated manually.
-find_path(SEMT_INCLUDE_DIR NAMES Semt.h HINTS "${semt_DIR}/semt")
+find_path(SEMT_INCLUDE_DIR NAMES Semt.h HINTS ${semt_DIR}/semt)
 if(EXISTS ${SEMT_INCLUDE_DIR})
   message(STATUS "Found SEMT: ${semt_DIR}")
   add_library(semt SHARED
@@ -121,4 +127,5 @@ include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${PETSC_INCLUDE_DIRS}
                     ${EASYLOGGINGPP_INCLUDE_DIRS}
                     ${BASE64_INCLUDE_DIR}
+                    ${XBRAID_INCLUDE_DIR}
                    )
