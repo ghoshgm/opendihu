@@ -51,5 +51,5 @@ add_test(NAME test_vc COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_vc)
 
 # Test for PETSc installation.
 add_executable(test_petsc test_petsc.cpp)
-target_link_libraries(test_petsc ${PETSC_LIBRARIES} ${MPI_CXX_LIBRARIES})
+target_link_libraries(test_petsc ${PETSC_LINK_LIBRARIES} ${MPI_CXX_LIBRARIES})
 add_test(NAME test_petsc COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_petsc)
