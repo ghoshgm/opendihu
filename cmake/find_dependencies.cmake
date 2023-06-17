@@ -57,7 +57,7 @@ endif()
 # The includes and libs are pointed directly.
 find_path(XBRAID_INCLUDE_DIR NAMES braid.h HINTS ${xbraid_DIR}/include)
 find_path(XBRAID_LIBRARIES NAMES libbraid.a HINTS ${xbraid_DIR}/lib)
-if(EXISTS ${XBRAID_INCLUDE_DIR} AND EXISTS ${XBRAID_INCLUDE_DIR})
+if(EXISTS ${XBRAID_INCLUDE_DIR} AND EXISTS ${XBRAID_LIBRARIES})
   set(XBRAID_LIBRARIES "${xbraid_DIR}/lib/libbraid.a")
   message(STATUS "Found XBraid: ${xbraid_DIR}")
 else()
