@@ -61,7 +61,8 @@ if(EXISTS ${XBRAID_INCLUDE_DIR} AND EXISTS ${XBRAID_INCLUDE_DIR})
   set(XBRAID_LIBRARIES "${xbraid_DIR}/lib/libbraid.a")
   message(STATUS "Found XBraid: ${xbraid_DIR}")
 else()
-  message(STATUS "NOT FOUND")
+  message(FATAL_ERROR "CMake could not find braid.h and/or static library in ${xbraid_DIR}.
+                       Please make sure the path to the spack installation directory is correct.")
 endif()
 
 # Search for Base64 installation.
