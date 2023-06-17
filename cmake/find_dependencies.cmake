@@ -63,20 +63,22 @@ set(XBRAID_INCLUDE_DIR "${xbraid_DIR}/include")
 # A shared library is generated manually.
 find_path(BASE64_INCLUDE_DIR NAMES base64.h HINTS ${base64_DIR})
 if(EXISTS ${BASE64_INCLUDE_DIR})
- message(STATUS "Found base64: ${base64_DIR}")
+  message(STATUS "Found base64: ${base64_DIR}")
+  add_library(base64 SHARED ${BASE64_INCLUDE_DIR}/base64.h)
+  set_target_properties(base64 PROPERTIES LINKER_LANGUAGE CXX)
+  set(BASE64_LIBRARIES "base64")
+else()
+  message(FATAL_ERROR "CMake could not find base64.h in ${base64_DIR}.
+                       Please make sure the path to the source code is correct.")
 endif()
-add_library(base64 SHARED ${BASE64_INCLUDE_DIR}/base64.h)
-set_target_properties(base64 PROPERTIES LINKER_LANGUAGE CXX)
-set(BASE64_LIBRARIES "base64")
 
 # Search for SEMT installation.
 # The library has no support for CMake or Autotools and it does not generate any static/shared libs.
 # A shared library is generated manually.
 find_path(SEMT_INCLUDE_DIR NAMES Semt.h HINTS "${semt_DIR}/semt")
 if(EXISTS ${SEMT_INCLUDE_DIR})
- message(STATUS "Found SEMT: ${semt_DIR}")
-endif()
-add_library(semt SHARED
+  message(STATUS "Found SEMT: ${semt_DIR}")
+  add_library(semt SHARED
             ${semt_DIR}/semt/BinaryOperators.h
             ${semt_DIR}/semt/BinaryTypes.h
             ${semt_DIR}/semt/Common.h
@@ -105,7 +107,11 @@ add_library(semt SHARED
             ${semt_DIR}/loki/TypelistMacros.h
             ${semt_DIR}/loki/TypeManip.h
           )
-set(SEMT_LIBRARIES "semt")
+  set(SEMT_LIBRARIES "semt")
+else()
+  message(FATAL_ERROR "CMake could not find Semt.h in ${semt_DIR}.
+                       Please make sure the path to the source code is correct.")
+endif()
 
 include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${Python3_INCLUDE_DIRS}
@@ -114,4 +120,5 @@ include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${Vc_INCLUDE_DIR}
                     ${PETSC_INCLUDE_DIRS}
                     ${EASYLOGGINGPP_INCLUDE_DIRS}
+                    ${BASE64_INCLUDE_DIR}
                    )
