@@ -68,3 +68,8 @@ add_test(NAME test_xbraid COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 
 add_executable(test_semt test_semt.cpp)
 target_link_libraries(test_semt ${SEMT_LIBRARIES})
 add_test(NAME test_semt COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_semt)
+
+# Test for googletest installation.
+add_executable(test_gtest test_gtest.cpp)
+target_link_libraries(test_gtest ${GTEST_BOTH_LIBRARIES})
+add_test(NAME test_gtest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_gtest)

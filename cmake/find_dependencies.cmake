@@ -130,4 +130,5 @@ include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${BASE64_INCLUDE_DIR}
                     ${XBRAID_INCLUDE_DIR}
 		    ${SEMT_INCLUDE_DIR}
+		    ${GTEST_INCLUDE_DIRS}
                    )
