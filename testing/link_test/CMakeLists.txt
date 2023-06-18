@@ -73,3 +73,8 @@ add_test(NAME test_semt COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_semt)
 add_executable(test_gtest test_gtest.cpp)
 target_link_libraries(test_gtest ${GTEST_BOTH_LIBRARIES})
 add_test(NAME test_gtest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_gtest)
+
+# Test for preCICE installation.
+add_executable(test_precice test_precice.cpp)
+target_link_libraries(test_precice precice::precice)
+add_test(NAME test_precice COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_precice)
