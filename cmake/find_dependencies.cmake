@@ -17,7 +17,7 @@ find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 # Search for Eigen installation.
 find_package(Eigen3 REQUIRED NO_MODULE)
 if(${Eigen3_FOUND})
- message(STATUS "Found Eigen version ${Eigen3_VERSION} at ${Eigen3_DIR}")
+  message(STATUS "Found Eigen3: ${Eigen3_DIR} (found version ${Eigen3_VERSION})")
 endif()
 
 # Search for Boost installation.
@@ -29,7 +29,7 @@ find_package(LibXml2 REQUIRED)
 # Search for preCICE installation.
 find_package(precice REQUIRED)
 if(${precice_FOUND})
- message(STATUS "Found preCICE version ${precice_VERSION} at ${precice_DIR}")
+ message(STATUS "Found preCICE: ${precice_DIR} (found version ${precice_VERSION})")
 endif()
 
 # Search for googletest installation.
