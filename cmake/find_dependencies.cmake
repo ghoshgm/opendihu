@@ -38,6 +38,13 @@ find_package(GTest REQUIRED)
 # Search for ADIOS2 installation.
 find_package(adios2 REQUIRED)
 
+# Search for OpenBLAS installation.
+# It comes with LAPACK, LAPACKE, BLAS packed together.
+find_package(OpenBLAS REQUIRED)
+if(${OpenBLAS_FOUND})
+  message(STATUS "Found OpenBLAS: ${OpenBLAS_DIR} (found version ${OpenBLAS_VERSION})")
+endif()
+
 # Search for Easylogging++ installation.
 pkg_check_modules(EASYLOGGINGPP REQUIRED easyloggingpp)
 if(${EASYLOGGINGPP_FOUND})
@@ -129,6 +136,7 @@ include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${EASYLOGGINGPP_INCLUDE_DIRS}
                     ${BASE64_INCLUDE_DIR}
                     ${XBRAID_INCLUDE_DIR}
-		    ${SEMT_INCLUDE_DIR}
-		    ${GTEST_INCLUDE_DIRS}
+		                ${SEMT_INCLUDE_DIR}
+		                ${GTEST_INCLUDE_DIRS}
+                    ${OpenBLAS_INCLUDE_DIRS}
                    )

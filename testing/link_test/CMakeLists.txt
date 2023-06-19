@@ -78,3 +78,13 @@ add_test(NAME test_gtest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_gtest)
 add_executable(test_precice test_precice.cpp)
 target_link_libraries(test_precice precice::precice)
 add_test(NAME test_precice COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_precice)
+
+# Test for LAPACK installation.
+add_executable(test_lapacke test_lapacke.cpp)
+target_link_libraries(test_lapacke ${OpenBLAS_LIBRARIES})
+add_test(NAME test_lapacke COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_lapacke)
+
+# Test for BLAS installation.
+add_executable(test_blas test_blas.cpp)
+target_link_libraries(test_blas ${OpenBLAS_LIBRARIES})
+add_test(NAME test_blas COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_blas)
