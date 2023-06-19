@@ -1,6 +1,7 @@
 
 include(CheckIncludeFile)
 include(CheckSymbolExists)
+include(CheckCXXSymbolExists)
 include(ProcessorCount)
 
 # Generic routine to set appropriate cores for all tests.
@@ -17,11 +18,23 @@ else()
 endif()
 
 if(${MPI_FOUND})
-  set(CMAKE_REQUIRED_LIBRARIES MPI::MPI_C)
+  set(CMAKE_REQUIRED_LIBRARIES MPI::MPI_CXX)
   check_symbol_exists(MPI_Put mpi.h USE_MPI_PUT)
   check_symbol_exists(MPI_Win_lock mpi.h USE_MPI_WIN_LOCK)
   check_symbol_exists(MPI_Win_free mpi.h USE_MPI_WIN_FREE)
   check_symbol_exists(MPI_Win_unlock mpi.h USE_MPI_WIN_UNLOCK)
   check_symbol_exists(MPI_Win_create mpi.h USE_MPI_WIN_CREATE)
   check_symbol_exists(MPI_Win_allocate_shared mpi.h USE_MPI_ALLOC)
+endif()
+
+if(${precice_FOUND})
+  set(CMAKE_REQUIRED_LIBRARIES precice::precice)
+  check_cxx_symbol_exists(precice::constants::actionReadIterationCheckpoint SolverInterface.hpp HAVE_PRECICE)
+endif()
+
+if(${OpenBLAS_FOUND})
+  set(CMAKE_REQUIRED_INCLUDES ${OpenBLAS_INCLUDE_DIRS})
+  set(CMAKE_REQUIRED_LIBRARIES ${OpenBLAS_LIBRARIES})
+  check_symbol_exists(cblas_dgemm cblas.h HAVE_LAPACK)
+  check_symbol_exists(LAPACKE_dgesvd lapacke.h HAVE_LAPACKE)
 endif()
