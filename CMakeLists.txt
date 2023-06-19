@@ -18,6 +18,9 @@ VERSION ${PROJECT_VERSION}
 # The configure is aborted if a package cannot be found.
 include(cmake/find_dependencies.cmake)
 
+# Configure opendihu
+include(cmake/config.cmake)
+
 # Unit testing for dependecies and source code.
 include(CTest)
 add_subdirectory(testing/link_test)

@@ -2,7 +2,7 @@
 # Test for MPI installation.
 add_executable(test_mpi test_mpi.cpp)
 target_link_libraries(test_mpi ${MPI_CXX_LIBRARIES})
-add_test(NAME test_mpi COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_mpi)
+add_test(NAME test_mpi COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_NUMPROC_MAX} ${CMAKE_CURRENT_BINARY_DIR}/test_mpi)
 
 # Test for zlib installation.
 add_executable(test_zlib test_zlib.cpp)
@@ -52,17 +52,17 @@ add_test(NAME test_vc COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_vc)
 # Test for PETSc installation.
 add_executable(test_petsc test_petsc.cpp)
 target_link_libraries(test_petsc ${PETSC_LINK_LIBRARIES} ${MPI_CXX_LIBRARIES})
-add_test(NAME test_petsc COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_petsc)
+add_test(NAME test_petsc COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_NUMPROC_MAX} ${CMAKE_CURRENT_BINARY_DIR}/test_petsc)
 
 # Test for ADIOS2 installation.
 add_executable(test_adios2 test_adios2.cpp)
 target_link_libraries(test_adios2 ${adios2_LIBRARIES} ${MPI_CXX_LIBRARIES})
-add_test(NAME test_adios2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_adios2)
+add_test(NAME test_adios2 COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_NUMPROC_MAX} ${CMAKE_CURRENT_BINARY_DIR}/test_adios2)
 
 # Test for xbraid installation.
 add_executable(test_xbraid test_xbraid.cpp)
 target_link_libraries(test_xbraid ${XBRAID_LIBRARIES} ${MPI_CXX_LIBRARIES})
-add_test(NAME test_xbraid COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${CMAKE_CURRENT_BINARY_DIR}/test_xbraid)
+add_test(NAME test_xbraid COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_NUMPROC_MAX} ${CMAKE_CURRENT_BINARY_DIR}/test_xbraid)
 
 # Test for SEMT installation.
 add_executable(test_semt test_semt.cpp)
