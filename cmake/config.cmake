@@ -1,8 +1,10 @@
 
 include(CheckIncludeFile)
+include(CheckIncludeFileCXX)
 include(CheckSymbolExists)
 include(CheckCXXSymbolExists)
 include(ProcessorCount)
+include(CheckTypeSize)
 
 # Generic routine to set appropriate cores for all tests.
 # Typically the tests are executed with maximum 2 cores.
@@ -16,6 +18,24 @@ if(Ncpu LESS 2)
 else()
   set(MPIEXEC_NUMPROC_MAX 2)
 endif()
+
+check_type_size(int SIZEOF_INT)
+check_type_size(long SIZEOF_LONG)
+check_type_size("long long" SIZEOF_LONG_LONG)
+check_type_size(uint32_t SIZEOF_UINT32_T)
+check_type_size(uint64_t SIZEOF_UINT64_T)
+check_type_size(int32_t SIZEOF_INT32_T)
+check_type_size(int64_t SIZEOF_INT64_T)
+check_type_size(float SIZEOF_FLOAT)
+check_type_size(double SIZEOF_DOUBLE)
+check_type_size(void* SIZEOF_VOIDPTR)
+check_type_size(int* SIZEOF_INTPTR)
+
+if(${adios2_FOUND})
+  set(CMAKE_REQUIRED_LIBRARIES adios2::adios2)
+  check_include_file_cxx(adios2.h HAVE_ADIOS2)
+endif()
+
 
 if(${MPI_FOUND})
   set(CMAKE_REQUIRED_LIBRARIES MPI::MPI_CXX)
@@ -43,9 +63,12 @@ if(${OpenBLAS_FOUND})
   endif()
 endif()
 
+set(NESTED_MAT 0)
+set(XBRAID 0)
 set(SIMD 0)
 set(NDEBUG 0)
 set(PAT 0)
 set(EXTRAE 0)
 set(CHASTE 0)
-
+set(OPENCOR 0)
+set(MEGAMOL 0)
