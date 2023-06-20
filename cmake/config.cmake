@@ -42,3 +42,10 @@ if(${OpenBLAS_FOUND})
     set(HAVE_LAPACK 1)
   endif()
 endif()
+
+set(SIMD 0)
+set(NDEBUG 0)
+set(PAT 0)
+set(EXTRAE 0)
+set(CHASTE 0)
+
