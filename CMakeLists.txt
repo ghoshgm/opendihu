@@ -6,6 +6,9 @@ include(cmake/git.cmake)
 # Print package version to console.
 message(STATUS "OpenDiHu ${PROJECT_VERSION}")
 
+# Set CXX standard
+set(CMAKE_CXX_STANDARD 17)
+
 # Project description
 project(OPENDIHU
 LANGUAGES C CXX
