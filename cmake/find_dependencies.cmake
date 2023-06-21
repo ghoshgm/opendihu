@@ -1,9 +1,26 @@
 
+
+message(STATUS "")
+message(STATUS "****************************************************")
+message(STATUS "                     Finding MPI                    ")
+message(STATUS "****************************************************")
+
 # Search for MPI installation.
 find_package(MPI REQUIRED)
 
+message(STATUS "")
+message(STATUS "****************************************************")
+message(STATUS "            Checking for SIMD instructions          ")
+message(STATUS "****************************************************")
+
 # Search for Vc installation.
 find_package(Vc REQUIRED)
+
+message(STATUS "")
+message(STATUS "****************************************************")
+message(STATUS "              Finding external dependencies         ")
+message(STATUS "****************************************************")
+
 if(${Vc_FOUND})
  message(STATUS "Found Vc: ${Vc_DIR} (found version ${Vc_VERSION})")
 endif()

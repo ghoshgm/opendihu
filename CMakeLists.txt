@@ -17,6 +17,29 @@ DESCRIPTION "OpenDiHu is a scalable Finite Element code for skeletal muscle simu
 VERSION ${PROJECT_VERSION}
 )
 
+message(STATUS "")
+message(STATUS "****************************************************")
+message(STATUS "           Checking for Modern CXX support          ")
+message(STATUS "****************************************************")
+
+# Chech CXX compiler support for modern CXX standards (11 or higher)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION LESS "5.0")
+    message(FATAL_ERROR "GNU gcc v5.0 or higher required to enable modern cxx features.")
+  else()
+    message(STATUS "Detecting CXX compiler support for modern cxx standards - done")
+    message(STATUS "Detected CXX standards:")
+    foreach(feature ${CMAKE_CXX_COMPILE_FEATURES})
+      if(feature MATCHES "^(cxx_std)")
+        message(STATUS "${feature}")
+      endif()
+    endforeach()
+    message(STATUS "Default CXX standard - ${CMAKE_CXX_STANDARD}")
+  endif()
+else()
+  message(WARNING "Currently OpenDiHu only supports the GNU C/CXX compiler.CLang and Intel compilers will be supported in future releases.")
+endif()
+
 # Find the packages of all dependencies.
 # The configure is aborted if a package cannot be found.
 include(cmake/find_dependencies.cmake)
