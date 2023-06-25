@@ -1,5 +1,5 @@
 #include <iostream>
-#include <SolverInterface.hpp>
+#include <precice/SolverInterface.hpp>
 
 int main(int argc, char** argv)
 {

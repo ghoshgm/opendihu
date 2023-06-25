@@ -89,7 +89,7 @@ endif()
 
 if(${precice_FOUND})
   set(CMAKE_REQUIRED_LIBRARIES precice::precice)
-  check_include_file_cxx(SolverInterface.hpp HAVE_PRECICE)
+  check_include_file_cxx(precice/SolverInterface.hpp HAVE_PRECICE)
 endif()
 
 # Reset paths to ensure it does interfere with checks.
