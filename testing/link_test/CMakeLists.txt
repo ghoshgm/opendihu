@@ -40,9 +40,9 @@ target_link_libraries(test_easyloggingpp ${EASYLOGGINGPP_LIBRARIES})
 add_test(NAME test_easyloggingpp COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_easyloggingpp)
 
 # Test for base64 installtion.
-#add_executable(test_base64 test_base64.cpp)
-#target_link_libraries(test_base64 ${BASE64_LIBRARIES})
-#add_test(NAME test_base64 COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_base64)
+add_executable(test_base64 test_base64.cpp)
+target_link_libraries(test_base64 ${BASE64_LIBRARIES})
+add_test(NAME test_base64 COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_base64)
 
 # Test for Vc installation.
 add_executable(test_vc test_vc.cpp)
@@ -65,14 +65,14 @@ add_test(NAME test_petsc COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} $
 #add_test(NAME test_xbraid COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_NUMPROC_MAX} ${CMAKE_CURRENT_BINARY_DIR}/test_xbraid)
 
 # Test for SEMT installation.
-#add_executable(test_semt test_semt.cpp)
-#target_link_libraries(test_semt ${SEMT_LIBRARIES})
-#add_test(NAME test_semt COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_semt)
+add_executable(test_semt test_semt.cpp)
+target_link_libraries(test_semt ${SEMT_LIBRARIES})
+add_test(NAME test_semt COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_semt)
 
 # Test for googletest installation.
-#add_executable(test_gtest test_gtest.cpp)
-#target_link_libraries(test_gtest ${GTEST_BOTH_LIBRARIES})
-#add_test(NAME test_gtest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_gtest)
+add_executable(test_gtest test_gtest.cpp)
+target_link_libraries(test_gtest ${GTEST_BOTH_LIBRARIES})
+add_test(NAME test_gtest COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_gtest)
 
 # Test for preCICE installation.
 add_executable(test_precice test_precice.cpp)
