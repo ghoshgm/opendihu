@@ -142,17 +142,3 @@ endif()
 #  message(FATAL_ERROR "CMake could not find braid.h and/or static library in ${xbraid_DIR}.
 #                       Please make sure the path to the spack installation directory is correct.")
 		       #endif()
-
-include_directories(${MPI_CXX_INCLUDE_DIRS}
-                    ${Python3_INCLUDE_DIRS}
-                    ${LIBXML2_INCLUDE_DIR}
-                    ${ZLIB_INCLUDE_DIRS}
-                    ${Vc_INCLUDE_DIR}
-                    ${PETSC_INCLUDE_DIRS}
-                    ${EASYLOGGINGPP_INCLUDE_DIRS}
-                    ${BASE64_INCLUDE_DIR}
-                    ${XBRAID_INCLUDE_DIR}
-		                ${SEMT_INCLUDE_DIR}
-		                ${GTEST_INCLUDE_DIRS}
-                    ${OpenBLAS_INCLUDE_DIRS}
-                   )
