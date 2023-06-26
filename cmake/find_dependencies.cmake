@@ -64,29 +64,6 @@ if(${PETSC_FOUND})
  message(STATUS "Found PETSc at ${PETSC_PREFIX}")
 endif()
 
-message(STATUS "")
-message(STATUS "****************************************************")
-message(STATUS "            Checking for SIMD instructions          ")
-message(STATUS "****************************************************")
-find_package(Vc REQUIRED)
-if(Vc_FOUND)
- message(STATUS "Found Vc: ${Vc_DIR} (found version ${Vc_VERSION})")
-endif()
-
-# Search for xbraid installation.
-# The library does not generate *.pc or *-config.cmake files.
-# The includes and libs are pointed directly.
-#find_path(XBRAID_INCLUDE_DIR NAMES braid.h HINTS ${xbraid_DIR}/include)
-#find_path(XBRAID_LIBRARIES NAMES libbraid.a HINTS ${xbraid_DIR}/lib)
-#if(EXISTS ${XBRAID_INCLUDE_DIR} AND EXISTS ${XBRAID_LIBRARIES})
-#  set(XBRAID_FOUND 1)
-#  set(XBRAID_LIBRARIES "${xbraid_DIR}/lib/libbraid.a")
-#  message(STATUS "Found XBraid: ${xbraid_DIR}")
-#else()
-#  message(FATAL_ERROR "CMake could not find braid.h and/or static library in ${xbraid_DIR}.
-#                       Please make sure the path to the spack installation directory is correct.")
-		       #endif()
-
 # Search for Base64 installation.
 # The library has no support for CMake or Autotools and it does not generate any static/shared libs.
 # A shared library is generated manually.
@@ -142,6 +119,29 @@ else()
   message(FATAL_ERROR "CMake could not find Semt.h in ${semt_DIR}.
                        Please make sure the path to the source code is correct.")
 endif()
+
+message(STATUS "")
+message(STATUS "****************************************************")
+message(STATUS "            Checking for SIMD instructions          ")
+message(STATUS "****************************************************")
+find_package(Vc REQUIRED)
+if(Vc_FOUND)
+ message(STATUS "Found Vc: ${Vc_DIR} (found version ${Vc_VERSION})")
+endif()
+
+# Search for xbraid installation.
+# The library does not generate *.pc or *-config.cmake files.
+# The includes and libs are pointed directly.
+#find_path(XBRAID_INCLUDE_DIR NAMES braid.h HINTS ${xbraid_DIR}/include)
+#find_path(XBRAID_LIBRARIES NAMES libbraid.a HINTS ${xbraid_DIR}/lib)
+#if(EXISTS ${XBRAID_INCLUDE_DIR} AND EXISTS ${XBRAID_LIBRARIES})
+#  set(XBRAID_FOUND 1)
+#  set(XBRAID_LIBRARIES "${xbraid_DIR}/lib/libbraid.a")
+#  message(STATUS "Found XBraid: ${xbraid_DIR}")
+#else()
+#  message(FATAL_ERROR "CMake could not find braid.h and/or static library in ${xbraid_DIR}.
+#                       Please make sure the path to the spack installation directory is correct.")
+		       #endif()
 
 include_directories(${MPI_CXX_INCLUDE_DIRS}
                     ${Python3_INCLUDE_DIRS}

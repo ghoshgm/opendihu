@@ -6,9 +6,6 @@ include(cmake/git.cmake)
 # Print package version to console.
 message(STATUS "OpenDiHu ${PROJECT_VERSION}")
 
-# Set CXX standard
-set(CMAKE_CXX_STANDARD 17)
-
 # Project description
 project(OPENDIHU
 LANGUAGES C CXX
@@ -34,7 +31,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         message(STATUS "${feature}")
       endif()
     endforeach()
-    message(STATUS "Default CXX standard - ${CMAKE_CXX_STANDARD}")
+    message(STATUS "CXX standard used - ${CMAKE_CXX_STANDARD}")
   endif()
 else()
   message(WARNING "Currently OpenDiHu only supports the GNU C/CXX compiler.CLang and Intel compilers will be supported in future releases.")
