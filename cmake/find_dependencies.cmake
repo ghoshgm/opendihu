@@ -120,6 +120,8 @@ else()
                        Please make sure the path to the source code is correct.")
 endif()
 
+# NOTE: It was observed that the use find_package on Vc interferes with FindPkgConfig.
+# Make sure to use pkg_check_modules command before reaching this section.
 message(STATUS "")
 message(STATUS "****************************************************")
 message(STATUS "            Checking for SIMD instructions          ")
