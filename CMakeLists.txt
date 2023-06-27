@@ -44,6 +44,9 @@ include(cmake/find_dependencies.cmake)
 # Configure opendihu
 include(cmake/config.cmake)
 
+# Build libopendihu
+add_subdirectory(core)
+
 # Unit testing for dependecies and source code.
 include(CTest)
 add_subdirectory(testing/link_test)

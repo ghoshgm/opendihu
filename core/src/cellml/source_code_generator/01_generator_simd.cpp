@@ -107,7 +107,7 @@ generateSourceFileSimd(std::string outputFilename)
     simdSourceFile << fileContents;
     simdSourceFile.close();
   }
-  compilerCommand_ = C_COMPILER_COMMAND;
+  compilerCommand_ = ""/*C_COMPILER_COMMAND*/;
   additionalCompileFlags_ = "";
   sourceFileSuffix_ = ".c";
 }

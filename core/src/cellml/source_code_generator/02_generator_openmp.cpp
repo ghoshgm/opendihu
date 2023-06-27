@@ -113,6 +113,6 @@ generateSourceFileOpenMP(std::string outputFilename, int maximumNumberOfThreads)
   }
 
   additionalCompileFlags_ = "-fopenmp";
-  compilerCommand_ = C_COMPILER_COMMAND;
+  compilerCommand_ = ""/*C_COMPILER_COMMAND*/;
   sourceFileSuffix_ = ".c";
 }

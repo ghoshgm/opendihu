@@ -108,6 +108,8 @@ message(STATUS "****************************************************")
 message(STATUS "               Checking for functions               ")
 message(STATUS "****************************************************")
 
+check_cxx_symbol_exists(strsignal cstring HAVE_STRSIGNAL)
+check_cxx_symbol_exists(sys_siglist cstring HAVE_SYSSIGLIST)
 check_cxx_symbol_exists(sqrt cmath HAVE_SQRT)
 check_cxx_symbol_exists(fabs cmath HAVE_FABS)
 check_cxx_symbol_exists(pow cmath HAVE_POW)
@@ -121,3 +123,5 @@ endif()
 
 set(NDEBUG 1)
 set(DEBUG 0)
+
+configure_file(${PROJECT_SOURCE_DIR}/cmake/opendihu_config.h.in ${PROJECT_BINARY_DIR}/include/opendihu_config.h)

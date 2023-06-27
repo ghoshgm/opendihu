@@ -522,7 +522,7 @@ initializePetscVariables()
 
   combinedMatrixJacobian_ = createPartitionedPetscMat("combinedJacobian");
 
-  solverMatrixAdditionalNumericJacobian_ = PETSC_NULL;
+  solverMatrixAdditionalNumericJacobian_ = PETSC_NULLPTR;
 
   // if both numeric and analytic jacobian are used, create additional matrix that will hold the numeric jacobian
   if (useNumericJacobian_ && useAnalyticJacobian_)
@@ -883,7 +883,7 @@ dumpJacobianMatrix(Mat jac)
     // this is the normal jacobian, either numeric or analytic, if only one of both is in use
 
     // if both matrices are used
-    if (solverMatrixAdditionalNumericJacobian_ != PETSC_NULL)
+    if (solverMatrixAdditionalNumericJacobian_ != PETSC_NULLPTR)
     {
       filename << "_analytic";
       combinedMatrixJacobian_->dumpMatrixGlobalNatural(filename.str());

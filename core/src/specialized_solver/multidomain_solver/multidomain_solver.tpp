@@ -68,10 +68,10 @@ MultidomainSolver(DihuContext context) :
     finiteElementMethodDiffusionCompartment_.emplace_back(this->context_["Activation"]);
   }
 
-  singleSystemMatrix_ = PETSC_NULL;
-  singleSolution_ = PETSC_NULL;
-  singleRightHandSide_ = PETSC_NULL;
-  singlePreconditionerMatrix_ = PETSC_NULL;
+  singleSystemMatrix_ = PETSC_NULLPTR;
+  singleSolution_ = PETSC_NULLPTR;
+  singleRightHandSide_ = PETSC_NULLPTR;
+  singlePreconditionerMatrix_ = PETSC_NULLPTR;
   lastNumberOfIterations_ = 0;
 }
 
@@ -333,7 +333,7 @@ initializeMatricesAndVectors()
   // as we have Neumann boundary conditions, constant functions are in the nullspace of the matrix
   MatNullSpace nullSpace;
   PetscErrorCode ierr;
-  ierr = MatNullSpaceCreate(data().functionSpace()->meshPartition()->mpiCommunicator(), PETSC_TRUE, 0, PETSC_NULL, &nullSpace); CHKERRV(ierr);
+  ierr = MatNullSpaceCreate(data().functionSpace()->meshPartition()->mpiCommunicator(), PETSC_TRUE, 0, PETSC_NULLPTR, &nullSpace); CHKERRV(ierr);
   ierr = MatSetNullSpace(singleSystemMatrix_, nullSpace); CHKERRV(ierr);
   ierr = MatSetNearNullSpace(singleSystemMatrix_, nullSpace); CHKERRV(ierr); // for multigrid methods
   //ierr = MatNullSpaceDestroy(&nullSpace); CHKERRV(ierr);

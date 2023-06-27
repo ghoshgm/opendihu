@@ -854,10 +854,10 @@ generateSourceFileVc(std::string outputFilename, bool approximateExponentialFunc
   }
 
   std::stringstream s;
-  s << "-lVc -I\"" << OPENDIHU_HOME << "/dependencies/vc/install/include\" "
-    << "-I\"" << OPENDIHU_HOME << "/dependencies/std_simd/install/include\" "
-    << "-L\"" << OPENDIHU_HOME << "/dependencies/vc/install/lib\" ";
-  if (std::string(CXX_COMPILER_COMMAND) == std::string("g++"))
+  s << "-lVc -I\"" << ""/*OPENDIHU_HOME*/ << "/dependencies/vc/install/include\" "
+    << "-I\"" << ""/*OPENDIHU_HOME*/ << "/dependencies/std_simd/install/include\" "
+    << "-L\"" << ""/*OPENDIHU_HOME*/ << "/dependencies/vc/install/lib\" ";
+  if (std::string(""/*CXX_COMPILER_COMMAND*/) == std::string("g++"))
   {
 #ifdef HAVE_STDSIMD
     s << "-std=c++17";
@@ -866,7 +866,7 @@ generateSourceFileVc(std::string outputFilename, bool approximateExponentialFunc
 #endif
   }
   additionalCompileFlags_ = s.str();
-  compilerCommand_ = CXX_COMPILER_COMMAND;
+  compilerCommand_ = ""/*CXX_COMPILER_COMMAND*/;
   sourceFileSuffix_ = ".cpp";
 }
 
@@ -1180,10 +1180,10 @@ generateSourceFileFastMonodomain(std::string outputFilename, bool approximateExp
   }
   
   std::stringstream s;
-  s << "-lVc -I\"" << OPENDIHU_HOME << "/dependencies/vc/install/include\" "
-    << "-I\"" << OPENDIHU_HOME << "/dependencies/std_simd/install/include\" "
-    << "-L\"" << OPENDIHU_HOME << "/dependencies/vc/install/lib\" ";
-  if (std::string(CXX_COMPILER_COMMAND) == std::string("g++"))
+  s << "-lVc -I\"" << ""/*OPENDIHU_HOME*/ << "/dependencies/vc/install/include\" "
+    << "-I\"" << ""/*OPENDIHU_HOME*/ << "/dependencies/std_simd/install/include\" "
+    << "-L\"" << ""/*OPENDIHU_HOME*/ << "/dependencies/vc/install/lib\" ";
+  if (std::string(""/*CXX_COMPILER_COMMAND*/) == std::string("g++"))
   {
 #ifdef HAVE_STDSIMD
     s << "-std=c++17";
@@ -1192,7 +1192,7 @@ generateSourceFileFastMonodomain(std::string outputFilename, bool approximateExp
 #endif
   }
   additionalCompileFlags_ = s.str();
-  compilerCommand_ = CXX_COMPILER_COMMAND;
+  compilerCommand_ = ""/*CXX_COMPILER_COMMAND*/;
   sourceFileSuffix_ = ".cpp";
 }
 

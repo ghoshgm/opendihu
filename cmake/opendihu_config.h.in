@@ -1,0 +1,8 @@
+
+#define OPENDIHU_HOME @CMAKE_SOURCE_DIR@
+
+#define PYTHON_HOME_DIRECTORY @Python3_INCLUDE_DIRS@
+
+#cmakedefine HAVE_STRSIGNAL 1
+
+#cmakedefine HAVE_SYSSIGLIST 1

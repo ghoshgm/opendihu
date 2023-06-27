@@ -1,7 +1,7 @@
 #include "control/dihu_context.h"
 
 #include <Python.h>  // this has to be the first included header
-#include <python_home.h>  // defines PYTHON_HOME_DIRECTORY
+/*#include <python_home.h>*/  // defines PYTHON_HOME_DIRECTORY
 #include "control/diagnostic_tool/performance_measurement.h"
 #include "utility/python_capture_stderr.h"
 #include "control/initialization/python_opendihu_module.h"
@@ -22,8 +22,8 @@ void DihuContext::initializePython(int argc, char *argv[], bool explicitConfigFi
   PythonOpendihu::versionText = versionText();
 
   // set python home and path, apparently this is not needed
-  VLOG(1) << "python home directory: \"" << PYTHON_HOME_DIRECTORY << "\"";
-  std::string pythonSearchPath = PYTHON_HOME_DIRECTORY;
+  VLOG(1) << "python home directory: \"" << ""/*PYTHON_HOME_DIRECTORY*/ << "\"";
+  std::string pythonSearchPath = ""/*PYTHON_HOME_DIRECTORY*/;
   //std::string pythonSearchPath = std::string("/store/software/opendihu/dependencies/python/install");
   const wchar_t *pythonSearchPathWChar = Py_DecodeLocale(pythonSearchPath.c_str(), NULL);
   Py_SetPythonHome((wchar_t *)pythonSearchPathWChar);
@@ -67,8 +67,8 @@ void DihuContext::initializePython(int argc, char *argv[], bool explicitConfigFi
   // adjust PYTHONPATH
   std::stringstream codeForPythonPath;
   codeForPythonPath << "import sys" << std::endl
-    << "sys.path.append('" << OPENDIHU_HOME << "/scripts" << "')" << std::endl
-    << "sys.path.append('" << OPENDIHU_HOME << "/scripts/geometry_manipulation" << "')" << std::endl;
+    << "sys.path.append('" << ""/*OPENDIHU_HOME*/ << "/scripts" << "')" << std::endl
+    << "sys.path.append('" << ""/*OPENDIHU_HOME*/ << "/scripts/geometry_manipulation" << "')" << std::endl;
   PyRun_SimpleString(codeForPythonPath.str().c_str());
 
 
@@ -240,7 +240,7 @@ void DihuContext::loadPythonScript(std::string text)
 
       const char *version = Py_GetVersion();
       LOG(ERROR) << "Failed to import numpy. \n" 
-        << " - Python home directory: \"" << PYTHON_HOME_DIRECTORY << "\",\n"
+        << " - Python home directory: \"" << ""/*PYTHON_HOME_DIRECTORY*/ << "\",\n"
         << " - Standard python path: " << standardPythonPath << "\n"
         << " - Python home: " << home << "\n"
         << " - Python path: " << path << "\n"
@@ -250,7 +250,7 @@ void DihuContext::loadPythonScript(std::string text)
         << "  scons PYTHONPACKAGES_REBUILD=True\n"
         << "\n"
         << "If this fails, try the commands by hand or do the following:\n"
-        << "  cd " << PYTHON_HOME_DIRECTORY << "\n"
+        << "  cd " << ""/*PYTHON_HOME_DIRECTORY*/ << "\n"
         << "  python3 -m pip install numpy matplotlib scipy numpy-stl svg.path triangle geomdl vtk\n"
         << "Try to omit all packages that fail.";
     }

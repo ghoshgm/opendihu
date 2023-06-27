@@ -33,7 +33,7 @@ restoreValuesContiguous()
   VLOG(2) << "\"" << this->name_ << "\" restoreValuesContiguous() nComponents=" << nComponents;
 
   // assert that the valuesContiguous_ is being used
-  assert(this->valuesContiguous_ != PETSC_NULL);
+  assert(this->valuesContiguous_ != PETSC_NULLPTR);
   if (this->currentRepresentation_ != Partition::values_representation_t::representationContiguous)
   {
     LOG(FATAL) << "Called restoreValuesContiguous() in representation "

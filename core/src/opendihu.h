@@ -1,4 +1,6 @@
 // This file includes all header files that may be needed from an example
+#include <opendihu_config.h>
+
 #include "utility/python_utility.h"
 
 #include "control/coupling/coupling.h"

@@ -779,7 +779,7 @@ setRepresentationContiguous()
   PetscErrorCode ierr;
 
   // create contiguos vector if it does not exist yet
-  if (valuesContiguous_ == PETSC_NULL)
+  if (valuesContiguous_ == PETSC_NULLPTR)
   {
     //ierr = VecCreate(this->meshPartition_->mpiCommunicator(), &valuesContiguous_); CHKERRABORT(this->meshPartition_->mpiCommunicator(),ierr);
     ierr = VecCreate(MPI_COMM_SELF, &valuesContiguous_); CHKERRABORT(this->meshPartition_->mpiCommunicator(),ierr);

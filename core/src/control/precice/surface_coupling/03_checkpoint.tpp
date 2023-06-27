@@ -16,7 +16,7 @@ saveCheckpoint(double currentTime)
   PetscErrorCode ierr;
 
   // if the variable savedState_ does not yet exist, create as duplicate from the state vector
-  if (savedState_ == PETSC_NULL)
+  if (savedState_ == PETSC_NULLPTR)
   {
     ierr = VecDuplicate(this->currentState(this->nestedSolver_), &savedState_); CHKERRV(ierr);
   }

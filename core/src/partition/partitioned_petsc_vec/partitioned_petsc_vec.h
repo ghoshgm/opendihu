@@ -113,7 +113,7 @@ protected:
   void createVector();
   
   std::array<Vec,nComponents> values_;  //< the (serial) Petsc vectors that contains all the data, one for each component
-  Vec valuesContiguous_ = PETSC_NULL;   //< global vector that has all values of the components concatenated, i.e. in a "struct of arrays" memory layout
+  Vec valuesContiguous_ = PETSC_NULLPTR;   //< global vector that has all values of the components concatenated, i.e. in a "struct of arrays" memory layout
   Vec vectorNestedGlobal_;       //< a VecNest object containing the global values, only in used if nComponents > 1
 };
 
@@ -265,7 +265,7 @@ protected:
   
   std::array<Vec,nComponents> vectorLocal_;   //< local vector that holds the local Vecs, is filled by startGhostManipulation and can the be manipulated, afterwards the results need to get copied back by finishGhostManipulation
   std::array<Vec,nComponents> vectorGlobal_;  //< the global distributed vector that holds the actual data
-  Vec valuesContiguous_ = PETSC_NULL;         //< global vector that has all values of the components concatenated, i.e. in a "struct of arrays" memory layout. This is never used if nComponents = 1
+  Vec valuesContiguous_ = PETSC_NULLPTR;         //< global vector that has all values of the components concatenated, i.e. in a "struct of arrays" memory layout. This is never used if nComponents = 1
 
   std::vector<PetscInt> temporaryIndicesVector_;   //< a temporary vector that will be used whenever indices are to be computed, this avoids creating and deleting local vectors which is time-consuming (found out by perftools on hazelhen)
 

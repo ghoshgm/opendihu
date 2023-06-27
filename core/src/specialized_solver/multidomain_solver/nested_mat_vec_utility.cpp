@@ -34,7 +34,7 @@ void createVecFromNestedVec(Vec nestedVec, Vec &singleVec, std::shared_ptr<Parti
   ierr = VecNestGetSubVecs(nestedVec, &nNestedVecs, &nestedVecs); CHKERRV(ierr);
 
   // if Vec object does not yet exist, create new one
-  if (singleVec == PETSC_NULL)
+  if (singleVec == PETSC_NULLPTR)
   {
 
     // get the total sizes of all nested vecs
@@ -239,7 +239,7 @@ void createMatFromNestedMat(Mat nestedMat, Mat &singleMat, std::shared_ptr<Parti
     {
       Mat currentMat = nestedMats[nestedMatRowNo][nestedMatColumnNo];
 
-      if (currentMat != PETSC_NULL)
+      if (currentMat != PETSC_NULLPTR)
       {
         PetscInt nColumns = 0;
         ierr = MatGetSize(currentMat, &nRowsGlobalNestedMats[nestedMatRowNo], &nColumns); CHKERRV(ierr);
@@ -260,7 +260,7 @@ void createMatFromNestedMat(Mat nestedMat, Mat &singleMat, std::shared_ptr<Parti
     {
       Mat currentMat = nestedMats[nestedMatRowNo][nestedMatColumnNo];
 
-      if (currentMat != PETSC_NULL)
+      if (currentMat != PETSC_NULLPTR)
       {
 
         PetscInt nRows = 0;
@@ -289,7 +289,7 @@ void createMatFromNestedMat(Mat nestedMat, Mat &singleMat, std::shared_ptr<Parti
     {
       Mat currentMat = nestedMats[nestedMatRowNo][nestedMatColumnNo];
 
-      if (currentMat != PETSC_NULL)
+      if (currentMat != PETSC_NULLPTR)
       {
         PetscInt rowNoGlobalBegin = 0;
         PetscInt rowNoGlobalEnd = 0;
@@ -320,7 +320,7 @@ void createMatFromNestedMat(Mat nestedMat, Mat &singleMat, std::shared_ptr<Parti
   LOG(DEBUG) << "nMaximumNonzerosPerRow: " << nMaximumNonzerosPerRow;
 
   // if Mat object does not yet exist, create new one
-  if (singleMat == PETSC_NULL)
+  if (singleMat == PETSC_NULLPTR)
   {
     ierr = MatCreate(mpiCommunicator, &singleMat); CHKERRV(ierr);
     ierr = MatSetSizes(singleMat, nRowsLocal, nColumnsLocal, nRowsGlobal, nColumnsGlobal); CHKERRV(ierr);
@@ -367,7 +367,7 @@ void createMatFromNestedMat(Mat nestedMat, Mat &singleMat, std::shared_ptr<Parti
     {
       Mat currentMat = nestedMats[nestedMatRowNo][nestedMatColumnNo];
 
-      if (currentMat != PETSC_NULL)
+      if (currentMat != PETSC_NULLPTR)
       {
         ierr = MatGetOwnershipRangesColumn(currentMat, &columnRangesNested[nestedMatColumnNo]); CHKERRV(ierr);
         break;
@@ -398,7 +398,7 @@ void createMatFromNestedMat(Mat nestedMat, Mat &singleMat, std::shared_ptr<Parti
     {
       Mat currentMat = nestedMats[nestedMatRowNo][nestedMatColumnNo];
 
-      if (currentMat != PETSC_NULL)
+      if (currentMat != PETSC_NULLPTR)
       {
         PetscInt rowNoGlobalBegin = 0;
         PetscInt rowNoGlobalEnd = 0;

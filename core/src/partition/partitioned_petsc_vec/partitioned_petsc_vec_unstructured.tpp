@@ -460,7 +460,7 @@ getValuesContiguous()
   PetscErrorCode ierr;
 
   // create contiguos vector if it does not exist yet
-  if (valuesContiguous_ == PETSC_NULL)
+  if (valuesContiguous_ == PETSC_NULLPTR)
   {
     ierr = VecCreate(this->meshPartition_->mpiCommunicator(), &valuesContiguous_); CHKERRABORT(this->meshPartition_->mpiCommunicator(),ierr);
     ierr = PetscObjectSetName((PetscObject) valuesContiguous_, this->name_.c_str()); CHKERRABORT(this->meshPartition_->mpiCommunicator(),ierr);
@@ -510,7 +510,7 @@ restoreValuesContiguous()
   if (nComponents == 1)
     return;
 
-  assert(valuesContiguous_ != PETSC_NULL);
+  assert(valuesContiguous_ != PETSC_NULLPTR);
   if (this->currentRepresentation_ != Partition::values_representation_t::representationContiguous)
   {
     LOG(FATAL) << "Called restoreValuesContiguous() without previous getValuesContiguous()!";

@@ -1,7 +1,7 @@
 #include "control/dihu_context.h"
 
 #include <Python.h>  // this has to be the first included header
-#include <python_home.h>  // defines PYTHON_HOME_DIRECTORY
+/*#include <python_home.h>*/  // defines PYTHON_HOME_DIRECTORY
 #include <omp.h>
 
 #include <fstream>
@@ -17,6 +17,8 @@
 #include <csignal>
 #include <cstdlib>
 #include <cctype>
+#include <execinfo.h>
+#include <opendihu_config.h>
 
 #include "utility/python_utility.h"
 //#include "output_writer/paraview/paraview.h"
@@ -87,7 +89,12 @@ void handleSignal(int signalNo)
   MappingBetweenMeshes::Manager::writeLogFile();
 
   int rankNo = DihuContext::ownRankNoCommWorld();
-  LOG(INFO) << "Rank " << rankNo << " received signal " << sys_siglist[signalNo]
+  LOG(INFO) << "Rank " << rankNo << " received signal "
+#if HAVE_STRSIGNAL
+    << strsignal(signalNo)
+#elif HAVE_SYSSIGLIST
+    << sys_siglist[signalNo]
+#endif
     << " (" << signalNo << "): " << signalName;
 
   if (signalNo == SIGBUS)
@@ -472,8 +479,8 @@ std::string DihuContext::metaText()
   metaTextStr << "current time: " << tm_string << ", hostname: ";
 
   // host name
-  char hostname[MAXHOSTNAMELEN+1];
-  gethostname(hostname, MAXHOSTNAMELEN+1);
+  char hostname[HOST_NAME_MAX+1];
+  gethostname(hostname, HOST_NAME_MAX+1);
   metaTextStr << std::string(hostname) << ", n ranks: " << nRanksCommWorld_;
 
   return metaTextStr.str();

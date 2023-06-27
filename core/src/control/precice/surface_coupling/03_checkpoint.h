@@ -28,7 +28,7 @@ public:
 protected:
 
   double savedCurrentTime_;   //< the saved value of the simulation time
-  Vec savedState_ = PETSC_NULL;            //< Petsc Vec that stores the whole data
+  Vec savedState_ = PETSC_NULLPTR;            //< Petsc Vec that stores the whole data
 };
 
 }  // namespace
