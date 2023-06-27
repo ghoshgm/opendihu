@@ -74,7 +74,7 @@ add_test(NAME test_petsc COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} $
 
 # Test for SEMT installation.
 add_executable(test_semt test_semt.cpp)
-target_include_directories(test_semt PUBLIC ${SEMT_INCLUDE_DIR})
+target_include_directories(test_semt PUBLIC ${semt_DIR})
 target_link_libraries(test_semt PUBLIC ${SEMT_LIBRARIES})
 add_test(NAME test_semt COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_semt)
 
@@ -100,3 +100,8 @@ add_executable(test_blas test_blas.cpp)
 target_include_directories(test_blas PUBLIC ${OpenBLAS_INCLUDE_DIRS})
 target_link_libraries(test_blas PUBLIC ${OpenBLAS_LIBRARIES})
 add_test(NAME test_blas COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_blas)
+
+# Test for GNU OpenMP.
+add_executable(test_gnu_openmp test_gnu_openmp.cpp)
+target_link_libraries(test_gnu_openmp PUBLIC ${OpenMP_CXX_LIBRARIES})
+add_test(NAME test_gnu_openmp COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_gnu_openmp)

@@ -17,7 +17,7 @@ target_include_directories(opendihu PUBLIC ${PROJECT_SOURCE_DIR}/core/src
                                           ${BASE64_INCLUDE_DIR}
                                           ${Vc_INCLUDE_DIR}
                                           ${PETSC_INCLUDE_DIRS}
-                                          ${SEMT_INCLUDE_DIR}
+                                          ${semt_DIR}
                                           ${GTEST_INCLUDE_DIRS}
                                           ${OpenBLAS_INCLUDE_DIRS}
 )
@@ -35,4 +35,5 @@ target_link_libraries(opendihu PUBLIC ${MPI_CXX_LIBRARIES}
                                       ${GTEST_BOTH_LIBRARIES}
                                       precice::precice
                                       ${OpenBLAS_LIBRARIES}
+                                      ${OpenMP_CXX_LIBRARIES}
 )

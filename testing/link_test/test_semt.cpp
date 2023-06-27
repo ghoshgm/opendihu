@@ -1,6 +1,6 @@
 
-#include <Semt.h>
-#include <Shortcuts.h>
+#include <semt/Semt.h>
+#include <semt/Shortcuts.h>
 #include <iostream>
 
 using namespace std;

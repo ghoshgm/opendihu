@@ -84,6 +84,8 @@ if(${PETSC_FOUND})
   check_include_file(petscsystypes.h HAVE_PETSC)
 endif()
 
+check_include_file("pthread.h" HAVE_PTHREAD_H)
+check_include_file("omp.h" HAVE_OMP_H)
 check_include_file("inttypes.h" HAVE_INTTYPES_H)
 
 if(${precice_FOUND})
@@ -108,6 +110,10 @@ message(STATUS "****************************************************")
 message(STATUS "               Checking for functions               ")
 message(STATUS "****************************************************")
 
+if(${OpenMP_CXX_FOUND})
+set(CMAKE_REQUIRED_LIBRARIES ${OpenMP_CXX_LIBRARIES})
+check_cxx_symbol_exists(omp_set_num_threads omp.h HAVE_OMP_SET_NUM_THREADS)
+endif()
 check_cxx_symbol_exists(strsignal cstring HAVE_STRSIGNAL)
 check_cxx_symbol_exists(sys_siglist cstring HAVE_SYSSIGLIST)
 check_cxx_symbol_exists(sqrt cmath HAVE_SQRT)
@@ -121,6 +127,7 @@ if(${MPI_FOUND})
   check_symbol_exists(MPI_Win_allocate mpi.h HAVE_MPI_WIN_ALLOC)
 endif()
 
+set(CMAKE_REQUIRED_LIBRARIES)
 set(NDEBUG 1)
 set(DEBUG 0)
 

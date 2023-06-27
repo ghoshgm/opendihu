@@ -2,7 +2,7 @@
 
 #include <Python.h>  // this has to be the first included header
 /*#include <python_home.h>*/  // defines PYTHON_HOME_DIRECTORY
-#include <omp.h>
+/*#include <omp.h>*/
 
 #include <fstream>
 #include <iostream>

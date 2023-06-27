@@ -50,6 +50,9 @@ if(${OpenBLAS_FOUND})
   message(STATUS "Found OpenBLAS: ${OpenBLAS_DIR} (found version ${OpenBLAS_VERSION})")
 endif()
 
+# Search for OpenMP installation.
+find_package(OpenMP REQUIRED)
+
 # Search for Easylogging++ installation.
 pkg_check_modules(EASYLOGGINGPP REQUIRED easyloggingpp)
 if(${EASYLOGGINGPP_FOUND})
